@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+# Environment
+.env
+.env.local
+.env.production
+# Logs
+logs/
+*.log
+# OS
+.DS_Store
+Thumbs.db
+# IDE
+.vscode/
+.idea/
+# Test files (optional - keep if you want them in repo)
+test-*.js
+# Cache
+.cache/
+.npm
+.eslintcache
+# Build
+dist/
+build/
+out/
+# Other
+package-lock.json

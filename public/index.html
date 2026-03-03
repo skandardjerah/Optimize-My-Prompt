@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptCraft AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, white 70%);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(9, 17, 42, 0.2);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(9, 17, 42, 0.4);
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(#09112A);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-260px);
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .new-chat-btn {
+      width: 100%;
+      background: white;
+      color: #09112A;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .new-chat-btn:hover {
+      background: #f0f0f0;
+      transform: scale(1.02);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      padding: 12px 15px;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Feature Submenu */
+    .feature-submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      margin-left: 15px;
+    }
+
+    .feature-submenu.open {
+      max-height: 200px;
+    }
+
+    .feature-item {
+      padding: 10px 15px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      border-radius: 6px;
+      margin-bottom: 3px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .feature-item.selected {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: 600;
+    }
+
+    /* History Submenu */
+    .history-submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      margin-left: 15px;
+    }
+
+    .history-submenu.open {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 8px 12px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-radius: 6px;
+      margin-bottom: 3px;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .history-item.selected {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: 600;
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+      font-size: 12px;
+    }
+
+    .chevron.rotated {
+      transform: rotate(180deg);
+    }
+
+    /* Hamburger Menu */
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      left: 270px;
+      width: 40px;
+      height: 40px;
+      background: #09112A;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      z-index: 1001;
+      transition: left 0.3s ease;
+    }
+
+    .hamburger.sidebar-closed {
+      left: 10px;
+    }
+
+    .hamburger span {
+      width: 20px;
+      height: 2px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      transition: margin-left 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: 0;
+    }
+
+    /* Chat Area */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 40px;
+    }
+
+    .logo-container img {
+      max-width: 250px;
+      height: auto;
+    }
+
+    /* Feature Selection Card */
+    .feature-card {
+      background: linear-gradient(135deg, #F0F8FF, white 100%);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #09112A;
+      margin-bottom: 10px;
+    }
+
+    .feature-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-item {
+      padding: 10px 16px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      color: #09112A;
+    }
+
+    .checkbox-item:hover {
+      border-color: #09112A;
+      transform: scale(1.02);
+    }
+
+    .checkbox-item.checked {
+      background: #09112A;
+      color: white;
+      border-color: #09112A;
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(9, 17, 42, 0.3);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      display: none;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      min-height: 40px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #09112A;
+      min-height: 80px;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #09112A;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* Results Area */
+    .results-area {
+      max-width: 800px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 15px;
+    }
+
+    .copy-btn, .enhance-btn {
+      margin-top: 10px;
+      margin-right: 10px;
+      padding: 8px 16px;
+      background: #09112A;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-btn:hover, .enhance-btn:hover {
+      background: #1a2347;
+    }
+
+    .enhance-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Bottom Input Area */
+    .input-container {
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      padding: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .input-field {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      max-height: 200px;
+      min-height: 50px;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #09112A;
+      min-height: 120px;
+    }
+
+    /* Custom scrollbar for input field */
+    .input-field::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .input-field::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .input-field::-webkit-scrollbar-thumb {
+      background: rgba(9, 17, 42, 0.15);
+      border-radius: 10px;
+    }
+
+    .input-field::-webkit-scrollbar-thumb:hover {
+      background: rgba(9, 17, 42, 0.3);
+    }
+
+    .send-btn {
+      background: #09112A;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .send-btn:hover {
+      background: #1a2347;
+      transform: scale(1.05);
+    }
+
+    .send-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .send-btn svg {
+      transform: rotate(45deg);
+      margin: 0;
+      padding: 0;
+    }
+
+    .stop-btn {
+      background: #09112A;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stop-btn:hover {
+      background: #1a2347;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-dark {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(9, 17, 42, 0.2);
+      border-top: 2px solid #09112A;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Hide sections initially */
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu -->
+  <div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="new-chat-btn" onclick="newPrompt()">+ New Prompt</button>
+    </div>
+    <div class="sidebar-nav">
+      <!-- Features with dropdown -->
+      <div class="nav-item active" onclick="toggleFeatures()">
+        <span>⚡ Features</span>
+        <span class="chevron rotated" id="featuresChevron">▼</span>
+      </div>
+      <div class="feature-submenu open" id="featureSubmenu">
+        <div class="feature-item selected" id="feature-prompt" onclick="selectFeature('prompt')">
+          ✨ Prompt Enhancement
+        </div>
+        <div class="feature-item" id="feature-code" onclick="selectFeature('code')">
+          👨‍💻 Code Review
+        </div>
+        <div class="feature-item" id="feature-sql" onclick="selectFeature('sql')">
+          🗄️ SQL
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="nav-item" onclick="toggleHistory()">
+        <span>🕒 History</span>
+        <span class="chevron" id="historyChevron">▼</span>
+      </div>
+      <div class="history-submenu" id="historySubmenu">
+        <div id="historyList">
+          <!-- History items will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="FULL_LOGOO_.png" alt="PromptCraft AI">
+      </div>
+
+      <!-- Feature Content Card -->
+      <div class="feature-card" id="featureCard">
+        <div id="featureContent">
+          <div class="feature-title">✨ Prompt Enhancement</div>
+          <p class="feature-description">Enter your prompt below and we'll enhance it for better clarity, specificity, and results. Perfect for improving AI interactions.</p>
+        </div>
+      </div>
+
+      <!-- Results Area -->
+      <div id="resultsArea" class="results-area hidden">
+        <!-- Results will be displayed here -->
+      </div>
+    </div>
+
+    <!-- Bottom Input Area -->
+    <div class="input-container">
+      <textarea 
+        class="input-field" 
+        id="mainInput" 
+        placeholder="Enter your prompt to enhance..." 
+        rows="1"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+      <button class="stop-btn hidden" id="stopBtn" onclick="stopGeneration()">
+        <div class="loading"></div>
+        Generating...
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let currentFeature = 'prompt';
+    let sidebarOpen = true;
+    let isGenerating = false;
+    let abortController = null;
+    let featuresOpen = true;
+    let historyOpen = false;
+
+    // Feature-specific inputs storage
+    let featureInputs = {
+      prompt: '',
+      code: '',
+      sql: ''
+    };
+
+    let featureSchemas = {
+      sql: ''
+    };
+
+    // Store current code separately
+    let currentCode = null;
+
+    // Prompt history storage
+    let promptHistory = [];
+
+    // Load history from localStorage on startup
+    function loadHistory() {
+      const saved = localStorage.getItem('promptHistory');
+      if (saved) {
+        promptHistory = JSON.parse(saved);
+        updateHistoryUI();
+      }
+    }
+
+    // Save history to localStorage
+    function saveHistory() {
+      localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
+    }
+
+    // Update history UI
+    function updateHistoryUI() {
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      
+      if (promptHistory.length === 0) {
+        historyList.innerHTML = '<div class="history-item" style="color: rgba(255,255,255,0.5); cursor: default;">No history yet</div>';
+        return;
+      }
+
+      promptHistory.slice().reverse().forEach((item, index) => {
+        const originalIndex = promptHistory.length - 1 - index;
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.id = `history-item-${originalIndex}`;
+        historyItem.textContent = item.message.substring(0, 30) + (item.message.length > 30 ? '...' : '');
+        historyItem.title = item.message;
+        historyItem.onclick = () => loadHistoryItem(originalIndex);
+        historyList.appendChild(historyItem);
+      });
+    }
+
+    // Load a history item
+    function loadHistoryItem(index) {
+      // Remove selection from all history items
+      document.querySelectorAll('.history-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Add selection to clicked item
+      const selectedItem = document.getElementById(`history-item-${index}`);
+      if (selectedItem) {
+        selectedItem.classList.add('selected');
+      }
+      
+      const item = promptHistory[index];
+      currentFeature = item.feature;
+      
+      // Update selected feature
+      document.querySelectorAll('.feature-item').forEach(f => f.classList.remove('selected'));
+      document.getElementById(`feature-${item.feature}`).classList.add('selected');
+      
+      // Restore code if it exists
+      if (item.code) {
+        currentCode = item.code;
+      }
+      
+      // Show feature card and results
+      selectFeature(item.feature, true);
+      displayResults(item.result);
+      
+      // Fill in inputs
+      document.getElementById('mainInput').value = item.message;
+      if (item.feature === 'sql' && item.schema) {
+        setTimeout(() => {
+          document.getElementById('schemaInput').value = item.schema;
+        }, 100);
+      }
+
+      // Restore code review checkboxes if they exist
+      if (item.feature === 'code' && item.reviewOptions) {
+        setTimeout(() => {
+          item.reviewOptions.forEach(optionValue => {
+            const checkbox = document.getElementById(`opt-${optionValue}`);
+            if (checkbox) {
+              checkbox.checked = true;
+              checkbox.parentElement.classList.add('checked');
+            }
+          });
+        }, 100);
+      }
+
+      // Show enhanced code if it exists
+      if (item.enhancedCode) {
+        setTimeout(() => {
+          let html = '<div class="result-card">';
+          html += `<h3>✨ Enhanced Code</h3>`;
+          html += `<code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; overflow-x: auto;">${item.enhancedCode}</code>`;
+          html += `<p style="margin-top: 15px;"><strong>📝 Changes Made:</strong></p>`;
+          item.enhancedChanges.forEach(change => {
+            html += `<p>• ${change}</p>`;
+          });
+          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(item.enhancedCode)}\`)">📋 Copy Enhanced Code</button>`;
+          html += '</div>';
+          
+          document.getElementById('resultsArea').innerHTML += html;
+        }, 200);
+      }
+    }
+
+    // Save prompt to history
+    function savePromptToHistory(feature, message, result, schema = null, code = null, reviewOptions = null) {
+      const historyItem = {
+        feature: feature,
+        message: message,
+        result: result,
+        schema: schema,
+        code: code,
+        reviewOptions: reviewOptions,
+        timestamp: new Date().toISOString()
+      };
+      
+      promptHistory.push(historyItem);
+      saveHistory();
+      updateHistoryUI();
+    }
+
+    // Toggle Sidebar
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const hamburger = document.getElementById('hamburger');
+
+      if (sidebarOpen) {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('sidebar-collapsed');
+        hamburger.classList.remove('sidebar-closed');
+      } else {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('sidebar-collapsed');
+        hamburger.classList.add('sidebar-closed');
+      }
+    }
+
+    // Toggle Features Dropdown
+    function toggleFeatures() {
+      featuresOpen = !featuresOpen;
+      const submenu = document.getElementById('featureSubmenu');
+      const chevron = document.getElementById('featuresChevron');
+
+      if (featuresOpen) {
+        submenu.classList.add('open');
+        chevron.classList.add('rotated');
+      } else {
+        submenu.classList.remove('open');
+        chevron.classList.remove('rotated');
+      }
+    }
+
+    // Toggle History Dropdown
+    function toggleHistory() {
+      historyOpen = !historyOpen;
+      const submenu = document.getElementById('historySubmenu');
+      const chevron = document.getElementById('historyChevron');
+
+      if (historyOpen) {
+        submenu.classList.add('open');
+        chevron.classList.add('rotated');
+      } else {
+        submenu.classList.remove('open');
+        chevron.classList.remove('rotated');
+      }
+    }
+
+    // New Prompt
+    function newPrompt() {
+      location.reload();
+    }
+
+    // Select Feature
+    function selectFeature(feature, skipClear = false) {
+      const previousFeature = currentFeature;
+      
+      // Save current feature's input before switching
+      if (previousFeature && previousFeature !== feature) {
+        featureInputs[previousFeature] = document.getElementById('mainInput').value;
+        if (previousFeature === 'sql') {
+          const schemaInput = document.getElementById('schemaInput');
+          if (schemaInput) {
+            featureSchemas.sql = schemaInput.value;
+          }
+        }
+      }
+
+      currentFeature = feature;
+
+      // Update selected state in sidebar
+      document.querySelectorAll('.feature-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      document.getElementById(`feature-${feature}`).classList.add('selected');
+
+      // Show feature card
+      const featureCard = document.getElementById('featureCard');
+      featureCard.classList.remove('hidden');
+
+      // Show feature-specific content
+      const featureContent = document.getElementById('featureContent');
+
+      if (feature === 'code') {
+        featureContent.innerHTML = `
+          <div class="feature-title">👨‍💻 Code Review</div>
+          <p class="feature-description">Paste your code in the message box below. Our AI will analyze it for security vulnerabilities, performance issues, best practices, and more.</p>
+          
+          <p class="label">📋 Review Focus</p>
+          <div class="checkbox-group">
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-security')">
+              <input type="checkbox" id="opt-security" value="security">
+              <label>Security</label>
+            </div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-performance')">
+              <input type="checkbox" id="opt-performance" value="performance">
+              <label>Performance</label>
+            </div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-clarity')">
+              <input type="checkbox" id="opt-clarity" value="clarity">
+              <label>Code Clarity</label>
+            </div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-best-practices')">
+              <input type="checkbox" id="opt-best-practices" value="best-practices">
+              <label>Best Practices</label>
+            </div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-edge-cases')">
+              <input type="checkbox" id="opt-edge-cases" value="edge-cases">
+              <label>Edge Cases</label>
+            </div>
+          </div>
+        `;
+        document.getElementById('mainInput').placeholder = 'Paste your code here for review...';
+      } else if (feature === 'sql') {
+        featureContent.innerHTML = `
+          <div class="feature-title">🗄️ SQL Query Generator</div>
+          <p class="feature-description">Provide your database schema and describe what data you need. We'll generate optimized SQL queries with explanations.</p>
+          
+          <p class="label">📊 Database Schema</p>
+          <input type="text" id="schemaInput" placeholder="e.g., users(id, name, email, is_active, signup_date)" style="line-height: 1.2;">
+        `;
+        document.getElementById('mainInput').placeholder = 'Describe the SQL query you need...';
+      } else {
+        featureContent.innerHTML = `
+          <div class="feature-title">✨ Prompt Enhancement</div>
+          <p class="feature-description">Enter your prompt below and we'll enhance it for better clarity, specificity, and results. Perfect for improving AI interactions.</p>
+        `;
+        document.getElementById('mainInput').placeholder = 'Enter your prompt to enhance...';
+      }
+
+      // Restore saved input for this feature
+      document.getElementById('mainInput').value = featureInputs[feature] || '';
+
+      // Restore schema for SQL
+      if (feature === 'sql') {
+        setTimeout(() => {
+          const schemaInput = document.getElementById('schemaInput');
+          if (schemaInput && featureSchemas.sql) {
+            schemaInput.value = featureSchemas.sql;
+          }
+        }, 50);
+      }
+
+      // Hide results when switching features (they only persist in history)
+      if (!skipClear) {
+        document.getElementById('resultsArea').classList.add('hidden');
+      }
+    }
+
+    // Toggle Checkbox
+    function toggleCheckbox(id) {
+      const checkbox = document.getElementById(id);
+      const container = checkbox.parentElement;
+      
+      checkbox.checked = !checkbox.checked;
+      
+      if (checkbox.checked) {
+        container.classList.add('checked');
+      } else {
+        container.classList.remove('checked');
+      }
+    }
+
+    // Send Message
+    async function sendMessage() {
+      if (!currentFeature) {
+        alert('Please select a feature first!');
+        return;
+      }
+
+      const message = document.getElementById('mainInput').value.trim();
+      
+      // Validation
+      if (!message) {
+        alert('Please enter a message!');
+        return;
+      }
+
+      if (currentFeature === 'sql') {
+        const schemaInput = document.getElementById('schemaInput');
+        if (!schemaInput || !schemaInput.value.trim()) {
+          alert('⚠️ Please provide a database schema!');
+          return;
+        }
+      }
+
+      // Show stop button with loading spinner, hide send
+      isGenerating = true;
+      document.getElementById('sendBtn').classList.add('hidden');
+      document.getElementById('stopBtn').classList.remove('hidden');
+
+      // Build context
+      const context = {};
+      let schema = null;
+      let code = null;
+      
+      if (currentFeature === 'code') {
+        code = message;
+        currentCode = message; // Store the code
+        context.code = message;
+        const selectedOptions = getSelectedReviewOptions();
+        context.reviewFocus = selectedOptions;
+      } else if (currentFeature === 'sql') {
+        const schemaInput = document.getElementById('schemaInput');
+        if (schemaInput && schemaInput.value.trim()) {
+          schema = schemaInput.value.trim();
+          context.schema = schema;
+        }
+      }
+
+      // Create abort controller for stopping
+      abortController = new AbortController();
+
+      try {
+        const response = await fetch('http://localhost:3000/api/process', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: currentFeature === 'code' ? getSelectedReviewOptions() : message,
+            context 
+          }),
+          signal: abortController.signal
+        });
+
+        const data = await response.json();
+        
+        // Save to history (with review options for code review)
+        let reviewOptions = null;
+        if (currentFeature === 'code') {
+          reviewOptions = getSelectedCheckboxValues();
+        }
+        savePromptToHistory(currentFeature, message, data, schema, code, reviewOptions);
+        
+        displayResults(data);
+        
+        // Auto-scroll to results
+        setTimeout(() => {
+          document.getElementById('resultsArea').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 100);
+        
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          alert('Generation stopped!');
+        } else {
+          alert('Error: ' + error.message);
+        }
+      } finally {
+        isGenerating = false;
+        document.getElementById('sendBtn').classList.remove('hidden');
+        document.getElementById('stopBtn').classList.add('hidden');
+      }
+    }
+
+    // Stop Generation
+    function stopGeneration() {
+      if (abortController) {
+        abortController.abort();
+      }
+    }
+
+    // Get Selected Review Options
+    function getSelectedReviewOptions() {
+      const checkboxes = document.querySelectorAll('.checkbox-item.checked');
+      if (checkboxes.length === 0) {
+        return 'Review this code';
+      }
+      const options = Array.from(checkboxes).map(item => {
+        return item.querySelector('label').textContent;
+      });
+      return `Review this code focusing on: ${options.join(', ').toLowerCase()}`;
+    }
+
+    // Get Selected Checkbox Values (for saving to history)
+    function getSelectedCheckboxValues() {
+      const checkboxes = document.querySelectorAll('.checkbox-item.checked input[type="checkbox"]');
+      return Array.from(checkboxes).map(checkbox => checkbox.value);
+    }
+
+    // Display Results
+    function displayResults(data) {
+      const resultsArea = document.getElementById('resultsArea');
+      resultsArea.classList.remove('hidden');
+
+      let html = '<div class="result-card">';
+      html += `<h3>📊 Results</h3>`;
+      html += `<p><strong>Intent:</strong> ${data.intent || 'N/A'}</p>`;
+      
+      if (data.result) {
+        if (data.result.enhanced) {
+          html += `<p style="margin-top: 15px;"><strong>✨ Enhanced Prompt:</strong></p>`;
+          html += `<p style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 8px;">${data.result.enhanced}</p>`;
+          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(data.result.enhanced)}\`)">📋 Copy Enhanced Prompt</button>`;
+        }
+        if (data.result.queries) {
+          html += `<p style="margin-top: 15px;"><strong>🗄️ Generated SQL:</strong></p>`;
+          data.result.queries.forEach(q => {
+            html += `<code style="display: block; background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 6px; font-family: monospace;">${q.sql}</code>`;
+            html += `<p style="font-size: 14px; color: #666;">${q.explanation}</p>`;
+          });
+        }
+        if (data.result.summary) {
+          html += `<p style="margin-top: 15px;"><strong>👨‍💻 Code Review:</strong></p>`;
+          html += `<p>${data.result.summary}</p>`;
+          if (data.result.issues && data.result.issues.length > 0) {
+            html += `<div style="margin-top: 15px;">`;
+            data.result.issues.forEach(issue => {
+              const color = issue.severity === 'critical' ? '#dc3545' : issue.severity === 'high' ? '#fd7e14' : '#ffc107';
+              html += `<div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid ${color}; border-radius: 4px;">`;
+              html += `<strong style="color: ${color};">[${issue.severity.toUpperCase()}]</strong> ${issue.description}<br>`;
+              html += `<em style="font-size: 13px;">💡 Fix: ${issue.suggestion}</em>`;
+              html += `</div>`;
+            });
+            html += `</div>`;
+          }
+          html += `<button class="enhance-btn" id="enhanceBtn" onclick="enhanceCode()">🔧 Enhance Code Based on Review</button>`;
+        }
+      }
+      
+      html += '</div>';
+      resultsArea.innerHTML = html;
+    }
+
+    // Enhance Code
+    async function enhanceCode() {
+      if (!currentCode) {
+        alert('No code to enhance!');
+        return;
+      }
+
+      // Show loading state
+      const enhanceBtn = document.getElementById('enhanceBtn');
+      const originalHTML = enhanceBtn.innerHTML;
+      enhanceBtn.disabled = true;
+      enhanceBtn.innerHTML = '<div class="loading-dark"></div> Generating...';
+
+      try {
+        const response = await fetch('http://localhost:3000/api/improve-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            code: currentCode, 
+            language: 'Auto-detect',
+            instructions: getSelectedReviewOptions()
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // Remove the button first (it will be replaced)
+          enhanceBtn.remove();
+          
+          let html = '<div class="result-card">';
+          html += `<h3>✨ Enhanced Code</h3>`;
+          html += `<code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; overflow-x: auto;">${data.improvedCode}</code>`;
+          html += `<p style="margin-top: 15px;"><strong>📝 Changes Made:</strong></p>`;
+          data.changes.forEach(change => {
+            html += `<p>• ${change}</p>`;
+          });
+          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(data.improvedCode)}\`)">📋 Copy Enhanced Code</button>`;
+          html += '</div>';
+          
+          document.getElementById('resultsArea').innerHTML += html;
+
+          // Save enhanced code to history
+          const currentHistoryItem = promptHistory[promptHistory.length - 1];
+          if (currentHistoryItem) {
+            currentHistoryItem.enhancedCode = data.improvedCode;
+            currentHistoryItem.enhancedChanges = data.changes;
+            saveHistory();
+          }
+          
+          // Auto-scroll to enhanced code
+          setTimeout(() => {
+            const cards = document.querySelectorAll('.result-card');
+            cards[cards.length - 1].scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }, 100);
+        }
+      } catch (error) {
+        alert('Error generating enhanced code!');
+        enhanceBtn.disabled = false;
+        enhanceBtn.innerHTML = originalHTML;
+      }
+    }
+
+    // Copy text to clipboard
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('✅ Copied to clipboard!');
+    }
+
+    // Escape for template literals
+    function escapeForTemplate(text) {
+      return text.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/\\/g, '\\\\');
+    }
+    
+    // Enter key to send message
+    document.getElementById('mainInput').addEventListener('keydown', function(e) {
+      // Only for main input (not code review or SQL schema)
+      if (e.key === 'Enter' && !e.shiftKey) {
+        // Check if we're in code review feature
+        if (currentFeature === 'code') {
+          // Allow Enter for code input (multi-line)
+          return;
+        }
+    
+        // For other features, send on Enter
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+ 
+    // Prevent Enter from triggering send in schema input
+    document.addEventListener('focusin', function(e) {
+      if (e.target && e.target.id === 'schemaInput') {
+        e.target.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            event.stopPropagation();
+          }
+        });
+      }
+    });
+
+    // Load history on startup
+    loadHistory();
+  </script>
+</body>
+</html>
