@@ -949,6 +949,7 @@
         context.code = message;
         const selectedOptions = getSelectedReviewOptions();
         context.reviewFocus = selectedOptions;
+	context.language = 'Auto-detect';
       } else if (currentFeature === 'sql') {
         const schemaInput = document.getElementById('schemaInput');
         if (schemaInput && schemaInput.value.trim()) {
