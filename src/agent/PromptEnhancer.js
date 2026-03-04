@@ -31,7 +31,7 @@ export class PromptEnhancer {
     return text.trim();
   }
 
-  // UPDATED: Language detection function with 14+ languages
+  // UPDATED: Language detection function with 17+ languages
   detectLanguage(code) {
     const trimmed = code.trim();
     const firstLine = trimmed.split('\n')[0].toLowerCase();
@@ -39,14 +39,14 @@ export class PromptEnhancer {
     // Python
     if (/^(import |from |def |class |@|print\(|if __name__|async def|lambda |elif )/.test(trimmed) || 
         /:\s*$/m.test(trimmed.split('\n')[0]) ||
-        /__init__|self\.|\.py/.test(trimmed)) {
+        /__init__|self\./.test(trimmed)) {
       return 'Python';
     }
     
     // JavaScript/TypeScript
     if (/^(const |let |var |function |class |import |export |=>|\/\/|async |await |require\()/.test(trimmed) ||
         /\{\s*$|;\s*$/.test(trimmed.split('\n')[0]) ||
-        /console\.log|module\.exports|\.js|\.ts/.test(trimmed)) {
+        /console\.log|module\.exports/.test(trimmed)) {
       return 'JavaScript';
     }
     
@@ -62,25 +62,22 @@ export class PromptEnhancer {
     }
     
     // C/C++
-    if (/^(#include|using namespace|int main|void |struct |typedef |#define )/.test(trimmed) ||
-        /\.h|\.cpp|\.c$/.test(trimmed)) {
+    if (/^(#include|using namespace|int main|void |struct |typedef |#define )/.test(trimmed)) {
       return 'C++';
     }
     
     // C#
-    if (/^(using System|namespace |public class |private class |\.NET|get; set;)/.test(trimmed)) {
+    if (/^(using System|namespace |public class |private class |get; set;)/.test(trimmed)) {
       return 'C#';
     }
     
     // Go
-    if (/^(package |func |import \"|type |var |:= |fmt\.)/.test(trimmed) ||
-        /\.go$/.test(trimmed)) {
+    if (/^(package |func |import \"|type |var |:= |fmt\.)/.test(trimmed)) {
       return 'Go';
     }
     
     // Rust
-    if (/^(fn |use |mod |pub |let mut|impl |trait |struct |enum |cargo)/.test(trimmed) ||
-        /\.rs$/.test(trimmed)) {
+    if (/^(fn |use |mod |pub |let mut|impl |trait |struct |enum |cargo)/.test(trimmed)) {
       return 'Rust';
     }
     
@@ -90,17 +87,17 @@ export class PromptEnhancer {
     }
     
     // Ruby
-    if (/^(require |class |def |module |end$|attr_|puts |\.rb$)/.test(trimmed)) {
+    if (/^(require |class |def |module |attr_|puts )/.test(trimmed) || /\bend\b/.test(trimmed)) {
       return 'Ruby';
     }
     
     // Swift
-    if (/^(import Foundation|import UIKit|func |class |struct |var |let |@|\.swift$)/.test(trimmed)) {
+    if (/^(import Foundation|import UIKit|func |class |struct |var |let |@)/.test(trimmed)) {
       return 'Swift';
     }
     
     // Kotlin
-    if (/^(fun |class |val |var |package |import kotlin|\.kt$|data class)/.test(trimmed)) {
+    if (/^(fun |class |val |var |package |import kotlin|data class)/.test(trimmed)) {
       return 'Kotlin';
     }
     
@@ -111,29 +108,31 @@ export class PromptEnhancer {
     }
     
     // R
-    if (/^(library\(|require\(|<- |function\(|data\.frame|ggplot|dplyr|\.R$)/.test(trimmed) ||
+    if (/^(library\(|require\(|<- |function\(|data\.frame|ggplot|dplyr)/.test(trimmed) ||
         firstLine.includes('library(') ||
         firstLine.includes('require(')) {
       return 'R';
     }
     
     // Scala
-    if (/^(object |class |trait |def |val |var |import scala|case class|\.scala$)/.test(trimmed)) {
+    if (/^(object |class |trait |def |val |var |import scala|case class)/.test(trimmed)) {
       return 'Scala';
     }
     
     // Perl
-    if (/^(use strict|use warnings|my \$|sub |package |\.pl$|#!/usr/bin/perl)/.test(trimmed)) {
+    if (/^(use strict|use warnings|my \$|sub |package )/.test(trimmed) || 
+        /^#!\/usr\/bin\/perl/.test(trimmed)) {
       return 'Perl';
     }
     
     // Shell/Bash
-    if (/^(#!/bin/bash|#!/bin/sh|export |source |\.sh$|if \[ |function )/.test(trimmed)) {
+    if (/^#!\/bin\/(bash|sh)/.test(trimmed) ||
+        /^(export |source |if \[ |function )/.test(trimmed)) {
       return 'Shell';
     }
     
-    // Default to JavaScript if can't detect
-    return 'JavaScript';
+    // Default to Python if can't detect
+    return 'Python';
   }
 
   async enhance(userPrompt, taskType = 'general_query', outputFormat = 'natural') {
@@ -257,7 +256,7 @@ Provide a comprehensive review in this JSON format:
 }
 
 CRITICAL INSTRUCTIONS:
-1. Begin the summary with "This is ${detectedLanguage} code..." or "This ${detectedLanguage} code..." to naturally mention the language
+1. Begin the summary with "This ${detectedLanguage} code..." to naturally mention the language
 2. Review this as ${detectedLanguage} code, not any other language
 3. All suggestions must be ${detectedLanguage}-specific
 4. Return ONLY the JSON object with no markdown formatting or code blocks`;
