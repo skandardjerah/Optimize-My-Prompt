@@ -168,23 +168,34 @@ app.post('/api/improve-code', async (req, res) => {
       return res.status(400).json({ error: 'Code is required' });
     }
 
+    // Auto-detect language if not provided
+    let detectedLanguage = language || 'Auto-detect';
+    
+    if (detectedLanguage === 'Auto-detect') {
+      detectedLanguage = agent.enhancer.detectLanguage(code);
+      console.log(`🔍 Auto-detected language for improvement: ${detectedLanguage}`);
+    }
+
     const userInstructions = instructions || 'Review this code';
 
-    const improvePrompt = `You are an expert ${language} developer. The user requested: "${userInstructions}"
+    const improvePrompt = `You are an expert ${detectedLanguage} developer. The user requested: "${userInstructions}"
 
-Here is the code that was reviewed:
+Here is the ${detectedLanguage} code that was reviewed:
 
+\`\`\`${detectedLanguage.toLowerCase()}
 ${code}
+\`\`\`
 
 Based on the user's request and the review findings, provide an improved version of this code. 
 
 Return ONLY a JSON object with this structure:
 {
-  "improved_code": "the complete improved code here",
+  "improved_code": "the complete improved ${detectedLanguage} code here",
   "changes_made": ["list of changes", "you made to", "improve the code based on the user's request"]
 }
 
-CRITICAL: Return ONLY the JSON object. Start with { and end with }. NO markdown, NO backticks, NO code blocks.`;
+CRITICAL: Return ONLY the JSON object. Start with { and end with }. NO markdown, NO backticks, NO code blocks.
+IMPORTANT: Keep the code in ${detectedLanguage}, do NOT convert it to another language.`;
 
     const response = await agent.enhancer.anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -200,7 +211,8 @@ CRITICAL: Return ONLY the JSON object. Start with { and end with }. NO markdown,
     res.json({
       success: true,
       improvedCode: result.improved_code,
-      changes: result.changes_made
+      changes: result.changes_made,
+      language: detectedLanguage
     });
 
   } catch (error) {
@@ -211,7 +223,6 @@ CRITICAL: Return ONLY the JSON object. Start with { and end with }. NO markdown,
     });
   }
 });
-
 app.listen(port, () => {
   console.log('\n🚀 Prompt Engineer Agent API');
   console.log('================================');
