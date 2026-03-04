@@ -31,6 +31,111 @@ export class PromptEnhancer {
     return text.trim();
   }
 
+  // UPDATED: Language detection function with 14+ languages
+  detectLanguage(code) {
+    const trimmed = code.trim();
+    const firstLine = trimmed.split('\n')[0].toLowerCase();
+    
+    // Python
+    if (/^(import |from |def |class |@|print\(|if __name__|async def|lambda |elif )/.test(trimmed) || 
+        /:\s*$/m.test(trimmed.split('\n')[0]) ||
+        /__init__|self\.|\.py/.test(trimmed)) {
+      return 'Python';
+    }
+    
+    // JavaScript/TypeScript
+    if (/^(const |let |var |function |class |import |export |=>|\/\/|async |await |require\()/.test(trimmed) ||
+        /\{\s*$|;\s*$/.test(trimmed.split('\n')[0]) ||
+        /console\.log|module\.exports|\.js|\.ts/.test(trimmed)) {
+      return 'JavaScript';
+    }
+    
+    // TypeScript (more specific)
+    if (/^(interface |type |enum |namespace |declare )/.test(trimmed) ||
+        /: (string|number|boolean|any|void)/.test(trimmed)) {
+      return 'TypeScript';
+    }
+    
+    // Java
+    if (/^(public |private |protected |package |import java|@Override|System\.|class .* extends|class .* implements)/.test(trimmed)) {
+      return 'Java';
+    }
+    
+    // C/C++
+    if (/^(#include|using namespace|int main|void |struct |typedef |#define )/.test(trimmed) ||
+        /\.h|\.cpp|\.c$/.test(trimmed)) {
+      return 'C++';
+    }
+    
+    // C#
+    if (/^(using System|namespace |public class |private class |\.NET|get; set;)/.test(trimmed)) {
+      return 'C#';
+    }
+    
+    // Go
+    if (/^(package |func |import \"|type |var |:= |fmt\.)/.test(trimmed) ||
+        /\.go$/.test(trimmed)) {
+      return 'Go';
+    }
+    
+    // Rust
+    if (/^(fn |use |mod |pub |let mut|impl |trait |struct |enum |cargo)/.test(trimmed) ||
+        /\.rs$/.test(trimmed)) {
+      return 'Rust';
+    }
+    
+    // PHP
+    if (/^(<\?php|namespace |use |class |function |\$|echo |require|include)/.test(trimmed)) {
+      return 'PHP';
+    }
+    
+    // Ruby
+    if (/^(require |class |def |module |end$|attr_|puts |\.rb$)/.test(trimmed)) {
+      return 'Ruby';
+    }
+    
+    // Swift
+    if (/^(import Foundation|import UIKit|func |class |struct |var |let |@|\.swift$)/.test(trimmed)) {
+      return 'Swift';
+    }
+    
+    // Kotlin
+    if (/^(fun |class |val |var |package |import kotlin|\.kt$|data class)/.test(trimmed)) {
+      return 'Kotlin';
+    }
+    
+    // SQL
+    if (/^(SELECT |INSERT |UPDATE |DELETE |CREATE |ALTER |DROP |FROM |WHERE |JOIN |TABLE)/i.test(trimmed) ||
+        /^(select |insert |update |delete |create |alter |drop |from |where |join |table)/.test(trimmed)) {
+      return 'SQL';
+    }
+    
+    // R
+    if (/^(library\(|require\(|<- |function\(|data\.frame|ggplot|dplyr|\.R$)/.test(trimmed) ||
+        firstLine.includes('library(') ||
+        firstLine.includes('require(')) {
+      return 'R';
+    }
+    
+    // Scala
+    if (/^(object |class |trait |def |val |var |import scala|case class|\.scala$)/.test(trimmed)) {
+      return 'Scala';
+    }
+    
+    // Perl
+    if (/^(use strict|use warnings|my \$|sub |package |\.pl$|#!/usr/bin/perl)/.test(trimmed)) {
+      return 'Perl';
+    }
+    
+    // Shell/Bash
+    if (/^(#!/bin/bash|#!/bin/sh|export |source |\.sh$|if \[ |function )/.test(trimmed)) {
+      return 'Shell';
+    }
+    
+    // Default to JavaScript if can't detect
+    return 'JavaScript';
+  }
+
   async enhance(userPrompt, taskType = 'general_query', outputFormat = 'natural') {
     try {
       const cacheKey = `${userPrompt}_${taskType}_${outputFormat}`;
@@ -114,13 +219,48 @@ export class PromptEnhancer {
     }
   }
 
-  async reviewCode(code, language = 'JavaScript', focus = 'all') {
+  async reviewCode(code, language = 'Auto-detect', focus = 'all') {
     try {
-      const reviewPrompt = this.promptLibrary.renderTemplate('code_review', {
-        Code: code,
-        Language: language,
-        ReviewFocus: focus
-      });
+      // Auto-detect language if not specified
+      let detectedLanguage = language;
+      
+      if (language === 'Auto-detect' || !language) {
+        detectedLanguage = this.detectLanguage(code);
+        console.log(`🔍 Detected language: ${detectedLanguage}`);
+      }
+
+      // Build custom review prompt with natural language mention
+      const reviewPrompt = `You are an expert ${detectedLanguage} developer conducting a thorough code review.
+
+Review this ${detectedLanguage} code for:
+${focus === 'all' ? 
+  '- Security vulnerabilities\n- Performance issues\n- Code clarity and maintainability\n- Best practices adherence\n- Edge cases and error handling' : 
+  `- ${focus}`}
+
+Code to review:
+\`\`\`${detectedLanguage.toLowerCase()}
+${code}
+\`\`\`
+
+Provide a comprehensive review in this JSON format:
+{
+  "overall_score": "score from 1-10",
+  "summary": "Start with: 'This is [language] code...' then provide your overall assessment in a natural, conversational tone",
+  "issues": [
+    {
+      "severity": "critical|high|medium|low",
+      "description": "Clear description of the issue",
+      "suggestion": "Specific, actionable fix"
+    }
+  ],
+  "strengths": ["positive aspects of the code"]
+}
+
+CRITICAL INSTRUCTIONS:
+1. Begin the summary with "This is ${detectedLanguage} code..." or "This ${detectedLanguage} code..." to naturally mention the language
+2. Review this as ${detectedLanguage} code, not any other language
+3. All suggestions must be ${detectedLanguage}-specific
+4. Return ONLY the JSON object with no markdown formatting or code blocks`;
 
       const response = await this.anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
@@ -137,7 +277,7 @@ export class PromptEnhancer {
         summary: result.summary,
         issues: result.issues,
         strengths: result.strengths,
-        language: language,
+        language: detectedLanguage,
         focus: focus
       };
 
