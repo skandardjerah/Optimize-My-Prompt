@@ -1,0 +1,5 @@
+# Executive Summary
+
+Your project, **OptimizeMyPrompt** (`prompt-engineer-agent`), is a production-ready AI application that improves how users interact with LLMs through a single, unified workflow. It combines three high-value capabilities: prompt enhancement, code review with automated improvement, and natural-language-to-SQL generation. The system uses intelligent intent routing to automatically direct each request to the right processing path, reducing user friction and making advanced AI assistance accessible from one interface and API.
+
+The platform is built on a Node.js/Express backend with Anthropic Claude integration and a lightweight web UI, with operational features that support real use: conversation memory, analytics, feedback capture, template management, caching, and rate limiting/security middleware. In business terms, this project positions itself as a practical AI productivity layer for developers, analysts, and prompt-heavy teams by improving output quality, reducing iteration time, and standardizing AI-assisted work across multiple use cases.

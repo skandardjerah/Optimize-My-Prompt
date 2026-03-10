@@ -1,0 +1,30 @@
+prompt-engineer-agent/
+├── src/
+│   ├── agent/
+│   │   ├── PromptEngineerAgent.js      # Request orchestration
+│   │   ├── PromptEnhancer.js           # Claude API integration
+│   │   └── ConversationStore.js        # In-memory conversation storage
+│   ├── classifiers/
+│   │   ├── IntentClassifier.js         # Intent detection algorithm
+│   │   └── TaskDetector.js             # Task type identification
+│   ├── prompt-library/
+│   │   ├── PromptLibrary.js            # Template management
+│   │   └── prompts/
+│   │       ├── promptEnhancement.js    # Enhancement templates
+│   │       ├── codeReview.js           # Review templates
+│   │       └── textToSql.js            # SQL templates
+│   ├── api/
+│   │   ├── server.js                   # Express server (15+ endpoints)
+│   │   └── middleware/
+│   │       └── rateLimiter.js          # Rate limiting config
+│   └── utils/
+│       ├── Analytics.js                # Request tracking
+│       ├── Logger.js                   # Logging system
+│       ├── Cache.js                    # Caching layer
+│       ├── FeedbackCollector.js        # Feedback aggregation
+│       └── TemplateBuilder.js          # Dynamic templates
+├── public/
+│   └── index.html                      # Single-page application (UI)
+├── tests/
+│   └── comprehensive-tests.js          # Test suite
+└── [Documentation files]
