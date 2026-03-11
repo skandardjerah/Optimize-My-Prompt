@@ -7,7 +7,20 @@
   "scripts": {
     "start": "node src/api/server.js",
     "dev": "nodemon src/api/server.js",
-    "test": "node tests/comprehensive-tests.js"
+    "test": "node tests/comprehensive-tests.js",
+    "test:classifier": "node tests/classifier.test.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:start:dev": "pm2 start ecosystem.config.cjs --env dev",
+    "pm2:stop": "pm2 stop promptcraft",
+    "pm2:reload": "pm2 reload ecosystem.config.cjs",
+    "pm2:logs": "pm2 logs promptcraft",
+    "pm2:monit": "pm2 monit",
+    "pm2:delete": "pm2 delete promptcraft",
+    "load:smoke": "k6 run tests/load/smoke.js",
+    "load:run": "k6 run tests/load/load.js",
+    "load:optimize": "k6 run tests/load/optimize.js",
+    "load:smoke:out": "k6 run tests/load/smoke.js --out json=tests/load/results/smoke.json",
+    "load:run:out": "k6 run tests/load/load.js --out json=tests/load/results/load.json"
   },
   "keywords": [],
   "author": "",

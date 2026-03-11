@@ -4,6 +4,11 @@ import dotenv from 'dotenv';
 import { PromptEngineerAgent } from '../agent/PromptEngineerAgent.js';
 import helmet from 'helmet';
 import { apiLimiter, enhanceLimiter } from './middleware/rateLimiter.js';
+import { IntentClassifier } from '../server/services/IntentClassifier.js';
+import { PromptOptimizer } from '../server/services/PromptOptimizer.js';
+import { StreamHandler } from '../server/services/StreamHandler.js';
+import { validateClassifyRequest } from '../server/middleware/requestValidator.js';
+import { errorHandler } from '../server/middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -14,10 +19,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 app.use(helmet());
-app.use('/api/', apiLimiter); 
+app.use('/api/', apiLimiter);
 
 const agent = new PromptEngineerAgent({
   apiKey: process.env.ANTHROPIC_API_KEY
+});
+
+const classifier = new IntentClassifier();
+const optimizer = new PromptOptimizer({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+app.post('/api/classify', validateClassifyRequest, (req, res, next) => {
+  try {
+    const result = classifier.classify(req.body.prompt, req.body.intentHint || null);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.get('/health', (req, res) => {
@@ -223,6 +240,44 @@ IMPORTANT: Keep the code in ${detectedLanguage}, do NOT convert it to another la
     });
   }
 });
+// POST /api/optimize — SSE streaming optimization pipeline
+app.post('/api/optimize', enhanceLimiter, async (req, res) => {
+  const { prompt, intentHint, tipCount } = req.body;
+
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+    return res.status(400).json({ error: 'prompt is required' });
+  }
+  if (prompt.trim().length > 10000) {
+    return res.status(400).json({ error: 'prompt must be 10 000 characters or fewer' });
+  }
+
+  const stream = new StreamHandler(res);
+  await optimizer.optimize(prompt.trim(), stream, {
+    intentHint: intentHint || null,
+    tipCount: Math.min(parseInt(tipCount) || 4, 8),
+  });
+});
+
+// POST /api/tips — tips-only (non-streaming JSON)
+app.post('/api/tips', apiLimiter, (req, res, next) => {
+  try {
+    const { prompt, intentHint, count } = req.body;
+
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({ error: 'prompt is required' });
+    }
+
+    const result = optimizer.getTipsOnly(prompt.trim(), {
+      intentHint: intentHint || null,
+      count: Math.min(parseInt(count) || 5, 10),
+    });
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.listen(port, () => {
   console.log('\n🚀 Prompt Engineer Agent API');
   console.log('================================');
@@ -231,5 +286,7 @@ app.listen(port, () => {
   console.log(`ℹ️  Info: http://localhost:${port}/api/info`);
   console.log('================================\n');
 });
+
+app.use(errorHandler);
 
 export default app;

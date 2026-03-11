@@ -20,25 +20,12 @@
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(9,17,42,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(9,17,42,0.4); }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(9, 17, 42, 0.2);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(9, 17, 42, 0.4);
-    }
-
-    /* Sidebar Styles */
+    /* ── Sidebar ──────────────────────────────────────────────────────────── */
     .sidebar {
       width: 260px;
       background: linear-gradient(#09112A);
@@ -47,478 +34,332 @@
       flex-direction: column;
       transition: transform 0.3s ease;
       position: fixed;
-      left: 0;
-      top: 0;
+      left: 0; top: 0;
       z-index: 1000;
     }
-
-    .sidebar.collapsed {
-      transform: translateX(-260px);
-    }
-
-    .sidebar-header {
-      padding: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
+    .sidebar.collapsed { transform: translateX(-260px); }
+    .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .new-chat-btn {
       width: 100%;
-      background: white;
-      color: #09112A;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
+      background: white; color: #09112A;
+      border: none; padding: 12px; border-radius: 8px;
+      font-weight: 600; cursor: pointer; font-size: 14px;
       transition: all 0.2s ease;
     }
-
-    .new-chat-btn:hover {
-      background: #f0f0f0;
-      transform: scale(1.02);
-    }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-    }
-
+    .new-chat-btn:hover { background: #f0f0f0; transform: scale(1.02); }
+    .sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
     .nav-item {
-      padding: 12px 15px;
-      color: white;
-      cursor: pointer;
-      border-radius: 8px;
-      margin-bottom: 5px;
+      padding: 12px 15px; color: white; cursor: pointer;
+      border-radius: 8px; margin-bottom: 5px;
       transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
     }
-
-    .nav-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-item.active {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    /* Feature Submenu */
-    .feature-submenu {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      margin-left: 15px;
-    }
-
-    .feature-submenu.open {
-      max-height: 200px;
-    }
-
+    .nav-item:hover { background: rgba(255,255,255,0.1); }
+    .nav-item.active { background: rgba(255,255,255,0.15); }
+    .feature-submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; margin-left: 15px; }
+    .feature-submenu.open { max-height: 200px; }
     .feature-item {
-      padding: 10px 15px;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      border-radius: 6px;
-      margin-bottom: 3px;
-      font-size: 14px;
+      padding: 10px 15px; color: rgba(255,255,255,0.8); cursor: pointer;
+      border-radius: 6px; margin-bottom: 3px; font-size: 14px;
       transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 8px;
     }
-
-    .feature-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .feature-item.selected {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      font-weight: 600;
-    }
-
-    /* History Submenu */
-    .history-submenu {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      margin-left: 15px;
-    }
-
-    .history-submenu.open {
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
+    .feature-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    .feature-item.selected { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .history-submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; margin-left: 15px; }
+    .history-submenu.open { max-height: 500px; overflow-y: auto; }
     .history-item {
-      padding: 8px 12px;
-      color: rgba(255, 255, 255, 0.7);
-      cursor: pointer;
-      border-radius: 6px;
-      margin-bottom: 3px;
-      font-size: 13px;
+      padding: 8px 12px; color: rgba(255,255,255,0.7); cursor: pointer;
+      border-radius: 6px; margin-bottom: 3px; font-size: 13px;
       transition: all 0.2s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .history-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    .history-item.selected { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .chevron { transition: transform 0.3s ease; font-size: 12px; }
+    .chevron.rotated { transform: rotate(180deg); }
 
-    .history-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .history-item.selected {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      font-weight: 600;
-    }
-
-    .chevron {
-      transition: transform 0.3s ease;
-      font-size: 12px;
-    }
-
-    .chevron.rotated {
-      transform: rotate(180deg);
-    }
-
-    /* Hamburger Menu */
+    /* ── Hamburger ───────────────────────────────────────────────────────── */
     .hamburger {
-      position: fixed;
-      top: 20px;
-      left: 270px;
-      width: 40px;
-      height: 40px;
-      background: #09112A;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      z-index: 1001;
-      transition: left 0.3s ease;
+      position: fixed; top: 20px; left: 270px;
+      width: 40px; height: 40px;
+      background: #09112A; border-radius: 8px; cursor: pointer;
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; gap: 5px;
+      z-index: 1001; transition: left 0.3s ease;
     }
+    .hamburger.sidebar-closed { left: 10px; }
+    .hamburger span { width: 20px; height: 2px; background: white; transition: all 0.3s ease; }
 
-    .hamburger.sidebar-closed {
-      left: 10px;
-    }
-
-    .hamburger span {
-      width: 20px;
-      height: 2px;
-      background: white;
-      transition: all 0.3s ease;
-    }
-
-    /* Main Content Area */
+    /* ── Main Content ────────────────────────────────────────────────────── */
     .main-content {
-      flex: 1;
-      margin-left: 260px;
+      flex: 1; margin-left: 260px;
       transition: margin-left 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      display: flex; flex-direction: column; height: 100vh;
     }
-
-    .main-content.sidebar-collapsed {
-      margin-left: 0;
-    }
-
-    /* Chat Area */
+    .main-content.sidebar-collapsed { margin-left: 0; }
     .chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; align-items: center;
     }
+    .logo-container { text-align: center; margin-bottom: 30px; margin-top: 40px; }
+    .logo-container img { max-width: 250px; height: auto; }
 
-    .logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-      margin-top: 40px;
-    }
-
-    .logo-container img {
-      max-width: 250px;
-      height: auto;
-    }
-
-    /* Feature Selection Card */
+    /* ── Feature Card ────────────────────────────────────────────────────── */
     .feature-card {
       background: linear-gradient(135deg, #F0F8FF, white 100%);
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      max-width: 800px;
-      width: 100%;
-      margin-bottom: 20px;
+      border-radius: 12px; padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      max-width: 800px; width: 100%; margin-bottom: 20px;
     }
-
-    .feature-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #09112A;
-      margin-bottom: 10px;
-    }
-
-    .feature-description {
-      color: #666;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    /* Checkbox Group */
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
+    .feature-title { font-size: 20px; font-weight: 600; color: #09112A; margin-bottom: 10px; }
+    .feature-description { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
     .checkbox-item {
-      padding: 10px 16px;
-      background: #f8f9fa;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-      color: #09112A;
+      padding: 10px 16px; background: #f8f9fa;
+      border: 2px solid #e0e0e0; border-radius: 6px;
+      cursor: pointer; transition: all 0.2s ease;
+      user-select: none; color: #09112A;
     }
-
-    .checkbox-item:hover {
-      border-color: #09112A;
-      transform: scale(1.02);
-    }
-
+    .checkbox-item:hover { border-color: #09112A; transform: scale(1.02); }
     .checkbox-item.checked {
-      background: #09112A;
-      color: white;
-      border-color: #09112A;
-      transform: scale(1.05);
-      box-shadow: 0 2px 8px rgba(9, 17, 42, 0.3);
+      background: #09112A; color: white; border-color: #09112A;
+      transform: scale(1.05); box-shadow: 0 2px 8px rgba(9,17,42,0.3);
     }
-
-    .checkbox-item input[type="checkbox"] {
-      display: none;
-    }
-
+    .checkbox-item input[type="checkbox"] { display: none; }
     input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.3s ease;
-      min-height: 40px;
+      width: 100%; padding: 10px;
+      border: 2px solid #e0e0e0; border-radius: 6px;
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease; min-height: 40px;
+    }
+    input[type="text"]:focus { outline: none; border-color: #09112A; min-height: 80px; }
+    .label { font-weight: 600; color: #09112A; margin-bottom: 8px; display: block; }
+
+    /* ── Results Area ────────────────────────────────────────────────────── */
+    .results-area { max-width: 800px; width: 100%; margin-top: 20px; }
+    .result-card {
+      background: white; border-radius: 12px; padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px;
+    }
+    .copy-btn, .enhance-btn {
+      margin-top: 10px; margin-right: 10px;
+      padding: 8px 16px; background: #09112A; color: white;
+      border: none; border-radius: 4px; cursor: pointer;
+      font-size: 14px; transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .copy-btn:hover, .enhance-btn:hover { background: #1a2347; }
+    .enhance-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* ── Phase 3: Intent Badge ────────────────────────────────────────────── */
+    .intent-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+    }
+    .intent-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    }
+    .intent-badge.CODE     { background: #dbeafe; color: #1d4ed8; border: 1.5px solid #93c5fd; }
+    .intent-badge.NATURAL_LANGUAGE { background: #dcfce7; color: #15803d; border: 1.5px solid #86efac; }
+    .intent-badge.HYBRID   { background: #ede9fe; color: #7c3aed; border: 1.5px solid #c4b5fd; }
+    .intent-confidence {
+      font-size: 13px; color: #6b7280; font-weight: 500;
+    }
+    .intent-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .CODE .intent-dot     { background: #2563eb; }
+    .NATURAL_LANGUAGE .intent-dot { background: #16a34a; }
+    .HYBRID .intent-dot   { background: #7c3aed; }
+
+    /* ── Phase 3: Tip Panel ───────────────────────────────────────────────── */
+    .tip-panel-header {
+      font-size: 15px; font-weight: 700; color: #09112A;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .tip-list { display: flex; flex-direction: column; gap: 10px; }
+    .tip-card {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 10px; padding: 12px 14px;
+      display: flex; gap: 10px; align-items: flex-start;
+      animation: tipIn 0.25s ease both;
+    }
+    @keyframes tipIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .category-badge {
+      flex-shrink: 0; padding: 3px 9px; border-radius: 12px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.4px; margin-top: 1px;
+    }
+    .cat-clarity     { background: #dbeafe; color: #1d4ed8; }
+    .cat-specificity { background: #fef3c7; color: #b45309; }
+    .cat-context     { background: #ede9fe; color: #7c3aed; }
+    .cat-format      { background: #dcfce7; color: #15803d; }
+    .tip-text { font-size: 14px; color: #374151; line-height: 1.5; }
+    .tip-apply {
+      font-size: 12px; color: #6b7280; margin-top: 4px;
+      font-style: italic;
     }
 
-    input[type="text"]:focus {
-      outline: none;
-      border-color: #09112A;
+    /* ── Phase 3: Live Preview ────────────────────────────────────────────── */
+    .live-preview-header {
+      font-size: 15px; font-weight: 700; color: #09112A;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .live-preview-box {
+      background: #0f172a; color: #e2e8f0;
+      border-radius: 10px; padding: 16px 18px;
+      font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+      font-size: 13.5px; line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word;
+      min-height: 80px;
+      position: relative;
+    }
+    .stream-cursor {
+      display: inline-block;
+      width: 2px; height: 1.1em;
+      background: #60a5fa;
+      vertical-align: text-bottom;
+      animation: blink 0.9s step-end infinite;
+      margin-left: 1px;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .live-preview-actions {
+      display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+    }
+
+    /* ── Phase 3: Quality Score ───────────────────────────────────────────── */
+    .quality-row {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .quality-score-badge {
+      display: flex; align-items: baseline; gap: 4px;
+    }
+    .quality-number {
+      font-size: 36px; font-weight: 800; line-height: 1;
+    }
+    .quality-max { font-size: 16px; color: #9ca3af; }
+    .quality-label {
+      font-size: 15px; font-weight: 700; padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .quality-Excellent { background: #dcfce7; color: #15803d; }
+    .quality-Good      { background: #dbeafe; color: #1d4ed8; }
+    .quality-Fair      { background: #fef3c7; color: #b45309; }
+    .quality-bar-group { flex: 1; min-width: 200px; }
+    .quality-bar-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px; font-size: 12px;
+    }
+    .quality-bar-label { width: 90px; color: #6b7280; flex-shrink: 0; }
+    .quality-bar-track {
+      flex: 1; height: 6px; background: #e5e7eb;
+      border-radius: 10px; overflow: hidden;
+    }
+    .quality-bar-fill {
+      height: 100%; background: #09112A;
+      border-radius: 10px; transition: width 0.6s ease;
+    }
+    .quality-bar-val { width: 28px; text-align: right; color: #374151; font-weight: 600; }
+
+    /* ── Phase 3: Diff Viewer ─────────────────────────────────────────────── */
+    .diff-header {
+      font-size: 15px; font-weight: 700; color: #09112A;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .diff-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    @media (max-width: 600px) { .diff-grid { grid-template-columns: 1fr; } }
+    .diff-pane { border-radius: 8px; overflow: hidden; }
+    .diff-pane-header {
+      padding: 6px 12px; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .diff-pane.original .diff-pane-header { background: #fef2f2; color: #991b1b; }
+    .diff-pane.optimized .diff-pane-header { background: #f0fdf4; color: #166534; }
+    .diff-pane-body {
+      padding: 12px; font-size: 13px; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word;
       min-height: 80px;
     }
+    .diff-pane.original .diff-pane-body { background: #fff5f5; color: #374151; }
+    .diff-pane.optimized .diff-pane-body { background: #f6ffed; color: #374151; }
+    .diff-del { background: #fecaca; border-radius: 2px; padding: 0 2px; }
+    .diff-ins { background: #bbf7d0; border-radius: 2px; padding: 0 2px; text-decoration: none; }
 
-    .label {
-      font-weight: 600;
-      color: #09112A;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    /* Results Area */
-    .results-area {
-      max-width: 800px;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    .result-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 15px;
-    }
-
-    .copy-btn, .enhance-btn {
-      margin-top: 10px;
-      margin-right: 10px;
-      padding: 8px 16px;
-      background: #09112A;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .copy-btn:hover, .enhance-btn:hover {
-      background: #1a2347;
-    }
-
-    .enhance-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    /* Bottom Input Area */
+    /* ── Input Area ──────────────────────────────────────────────────────── */
     .input-container {
-      background: white;
-      border-top: 1px solid #e0e0e0;
-      padding: 20px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
+      background: white; border-top: 1px solid #e0e0e0;
+      padding: 20px; display: flex; gap: 10px; align-items: flex-end;
+      max-width: 800px; margin: 0 auto; width: 100%;
     }
-
     .input-field {
-      flex: 1;
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 16px;
-      font-family: 'Inter', sans-serif;
-      resize: none;
-      max-height: 200px;
-      min-height: 50px;
-      overflow-y: auto;
-      transition: all 0.3s ease;
+      flex: 1; padding: 15px;
+      border: 2px solid #e0e0e0; border-radius: 8px;
+      font-size: 16px; font-family: 'Inter', sans-serif;
+      resize: none; max-height: 200px; min-height: 50px;
+      overflow-y: auto; transition: all 0.3s ease;
     }
-
-    .input-field:focus {
-      outline: none;
-      border-color: #09112A;
-      min-height: 120px;
-    }
-
-    /* Custom scrollbar for input field */
-    .input-field::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .input-field::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .input-field::-webkit-scrollbar-thumb {
-      background: rgba(9, 17, 42, 0.15);
-      border-radius: 10px;
-    }
-
-    .input-field::-webkit-scrollbar-thumb:hover {
-      background: rgba(9, 17, 42, 0.3);
-    }
-
+    .input-field:focus { outline: none; border-color: #09112A; min-height: 120px; }
+    .input-field::-webkit-scrollbar { width: 6px; }
+    .input-field::-webkit-scrollbar-track { background: transparent; }
+    .input-field::-webkit-scrollbar-thumb { background: rgba(9,17,42,0.15); border-radius: 10px; }
+    .input-field::-webkit-scrollbar-thumb:hover { background: rgba(9,17,42,0.3); }
     .send-btn {
-      background: #09112A;
-      color: white;
-      border: none;
-      padding: 12px;
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: #09112A; color: white; border: none;
+      padding: 12px; width: 44px; height: 44px;
+      border-radius: 8px; cursor: pointer;
+      font-size: 16px; font-weight: 600;
+      transition: all 0.2s ease; white-space: nowrap;
+      display: flex; align-items: center; justify-content: center;
     }
-
-    .send-btn:hover {
-      background: #1a2347;
-      transform: scale(1.05);
-    }
-
-    .send-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .send-btn svg {
-      transform: rotate(45deg);
-      margin: 0;
-      padding: 0;
-    }
-
+    .send-btn:hover { background: #1a2347; transform: scale(1.05); }
+    .send-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .send-btn svg { transform: rotate(45deg); }
     .stop-btn {
-      background: #09112A;
-      color: white;
-      border: none;
-      padding: 15px 25px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      background: #09112A; color: white; border: none;
+      padding: 15px 25px; border-radius: 8px; cursor: pointer;
+      font-size: 16px; font-weight: 600; transition: all 0.2s ease;
+      display: flex; align-items: center; gap: 10px;
     }
-
-    .stop-btn:hover {
-      background: #1a2347;
-    }
+    .stop-btn:hover { background: #1a2347; }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
     .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: inline-block; width: 16px; height: 16px;
+      border: 3px solid rgba(255,255,255,0.3);
       border-top: 3px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+      border-radius: 50%; animation: spin 1s linear infinite;
     }
-
     .loading-dark {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(9, 17, 42, 0.2);
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(9,17,42,0.2);
       border-top: 2px solid #09112A;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+      border-radius: 50%; animation: spin 1s linear infinite;
     }
+    .hidden { display: none; }
 
-    /* Hide sections initially */
-    .hidden {
-      display: none;
+    /* section title inside result cards */
+    .section-title {
+      font-size: 13px; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
     }
   </style>
 </head>
 <body>
+
   <!-- Hamburger Menu -->
   <div class="hamburger" id="hamburger" onclick="toggleSidebar()">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
   </div>
 
   <!-- Sidebar -->
@@ -527,7 +368,6 @@
       <button class="new-chat-btn" onclick="newPrompt()">+ New Prompt</button>
     </div>
     <div class="sidebar-nav">
-      <!-- Features with dropdown -->
       <div class="nav-item active" onclick="toggleFeatures()">
         <span>⚡ Features</span>
         <span class="chevron rotated" id="featuresChevron">▼</span>
@@ -543,51 +383,35 @@
           🗄️ SQL
         </div>
       </div>
-
-      <!-- History -->
       <div class="nav-item" onclick="toggleHistory()">
         <span>🕒 History</span>
         <span class="chevron" id="historyChevron">▼</span>
       </div>
       <div class="history-submenu" id="historySubmenu">
-        <div id="historyList">
-          <!-- History items will be inserted here -->
-        </div>
+        <div id="historyList"></div>
       </div>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
-    <!-- Chat Container -->
     <div class="chat-container" id="chatContainer">
-      <!-- Logo -->
       <div class="logo-container">
         <img src="FULL_LOGOO_.png" alt="PromptCraft AI">
       </div>
 
-      <!-- Feature Content Card -->
       <div class="feature-card" id="featureCard">
         <div id="featureContent">
           <div class="feature-title">✨ Prompt Enhancement</div>
-          <p class="feature-description">Enter your prompt below and we'll enhance it for better clarity, specificity, and results. Perfect for improving AI interactions.</p>
+          <p class="feature-description">Enter your prompt below and we'll enhance it using AI — with real-time intent detection, improvement tips, and a live-streamed optimized version.</p>
         </div>
       </div>
 
-      <!-- Results Area -->
-      <div id="resultsArea" class="results-area hidden">
-        <!-- Results will be displayed here -->
-      </div>
+      <div id="resultsArea" class="results-area hidden"></div>
     </div>
 
-    <!-- Bottom Input Area -->
     <div class="input-container">
-      <textarea 
-        class="input-field" 
-        id="mainInput" 
-        placeholder="Enter your prompt to enhance..." 
-        rows="1"
-      ></textarea>
+      <textarea class="input-field" id="mainInput" placeholder="Enter your prompt to enhance..." rows="1"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -595,408 +419,194 @@
         </svg>
       </button>
       <button class="stop-btn hidden" id="stopBtn" onclick="stopGeneration()">
-        <div class="loading"></div>
-        Generating...
+        <div class="loading"></div> Generating...
       </button>
     </div>
   </div>
 
   <script>
+    // ── State ─────────────────────────────────────────────────────────────────
     let currentFeature = 'prompt';
     let sidebarOpen = true;
     let isGenerating = false;
     let abortController = null;
     let featuresOpen = true;
     let historyOpen = false;
+    let featureInputs  = { prompt: '', code: '', sql: '' };
+    let featureSchemas = { sql: '' };
+    let currentCode    = null;
+    let promptHistory  = [];
 
-    // Feature-specific inputs storage
-    let featureInputs = {
-      prompt: '',
-      code: '',
-      sql: ''
-    };
-
-    let featureSchemas = {
-      sql: ''
-    };
-
-    // Store current code separately
-    let currentCode = null;
-
-    // Prompt history storage
-    let promptHistory = [];
-
-    // Load history from localStorage on startup
+    // ── History ───────────────────────────────────────────────────────────────
     function loadHistory() {
       const saved = localStorage.getItem('promptHistory');
-      if (saved) {
-        promptHistory = JSON.parse(saved);
-        updateHistoryUI();
-      }
+      if (saved) { promptHistory = JSON.parse(saved); updateHistoryUI(); }
     }
-
-    // Save history to localStorage
     function saveHistory() {
       localStorage.setItem('promptHistory', JSON.stringify(promptHistory));
     }
-
-    // Update history UI
     function updateHistoryUI() {
-      const historyList = document.getElementById('historyList');
-      historyList.innerHTML = '';
-      
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
       if (promptHistory.length === 0) {
-        historyList.innerHTML = '<div class="history-item" style="color: rgba(255,255,255,0.5); cursor: default;">No history yet</div>';
+        list.innerHTML = '<div class="history-item" style="color:rgba(255,255,255,0.5);cursor:default;">No history yet</div>';
         return;
       }
-
-      promptHistory.slice().reverse().forEach((item, index) => {
-        const originalIndex = promptHistory.length - 1 - index;
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.id = `history-item-${originalIndex}`;
-        historyItem.textContent = item.message.substring(0, 30) + (item.message.length > 30 ? '...' : '');
-        historyItem.title = item.message;
-        historyItem.onclick = () => loadHistoryItem(originalIndex);
-        historyList.appendChild(historyItem);
+      promptHistory.slice().reverse().forEach((item, idx) => {
+        const origIdx = promptHistory.length - 1 - idx;
+        const el = document.createElement('div');
+        el.className = 'history-item';
+        el.id = `history-item-${origIdx}`;
+        el.textContent = item.message.substring(0, 30) + (item.message.length > 30 ? '...' : '');
+        el.title = item.message;
+        el.onclick = () => loadHistoryItem(origIdx);
+        list.appendChild(el);
       });
     }
-
-    // Load a history item
     function loadHistoryItem(index) {
-      // Remove selection from all history items
-      document.querySelectorAll('.history-item').forEach(item => {
-        item.classList.remove('selected');
-      });
-      
-      // Add selection to clicked item
-      const selectedItem = document.getElementById(`history-item-${index}`);
-      if (selectedItem) {
-        selectedItem.classList.add('selected');
-      }
-      
+      document.querySelectorAll('.history-item').forEach(i => i.classList.remove('selected'));
+      const sel = document.getElementById(`history-item-${index}`);
+      if (sel) sel.classList.add('selected');
       const item = promptHistory[index];
       currentFeature = item.feature;
-      
-      // Update selected feature
       document.querySelectorAll('.feature-item').forEach(f => f.classList.remove('selected'));
       document.getElementById(`feature-${item.feature}`).classList.add('selected');
-      
-      // Restore code if it exists
-      if (item.code) {
-        currentCode = item.code;
-      }
-      
-      // Show feature card and results
+      if (item.code) currentCode = item.code;
       selectFeature(item.feature, true);
-      displayResults(item.result);
-      
-      // Fill in inputs
       document.getElementById('mainInput').value = item.message;
-      if (item.feature === 'sql' && item.schema) {
-        setTimeout(() => {
-          document.getElementById('schemaInput').value = item.schema;
-        }, 100);
+
+      if (item.feature === 'prompt' && item.optimizeResult) {
+        renderOptimizeResults(item.message, item.optimizeResult);
+      } else if (item.result) {
+        displayLegacyResults(item.result);
       }
 
-      // Restore code review checkboxes if they exist
+      if (item.feature === 'sql' && item.schema) {
+        setTimeout(() => { document.getElementById('schemaInput').value = item.schema; }, 100);
+      }
       if (item.feature === 'code' && item.reviewOptions) {
         setTimeout(() => {
-          item.reviewOptions.forEach(optionValue => {
-            const checkbox = document.getElementById(`opt-${optionValue}`);
-            if (checkbox) {
-              checkbox.checked = true;
-              checkbox.parentElement.classList.add('checked');
-            }
+          item.reviewOptions.forEach(v => {
+            const cb = document.getElementById(`opt-${v}`);
+            if (cb) { cb.checked = true; cb.parentElement.classList.add('checked'); }
           });
         }, 100);
       }
-
-      // Show enhanced code if it exists
-      if (item.enhancedCode) {
-        setTimeout(() => {
-          let html = '<div class="result-card">';
-          html += `<h3>✨ Enhanced Code</h3>`;
-          html += `<code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; overflow-x: auto;">${item.enhancedCode}</code>`;
-          html += `<p style="margin-top: 15px;"><strong>📝 Changes Made:</strong></p>`;
-          item.enhancedChanges.forEach(change => {
-            html += `<p>• ${change}</p>`;
-          });
-          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(item.enhancedCode)}\`)">📋 Copy Enhanced Code</button>`;
-          html += '</div>';
-          
-          document.getElementById('resultsArea').innerHTML += html;
-        }, 200);
-      }
     }
-
-    // Save prompt to history
-    function savePromptToHistory(feature, message, result, schema = null, code = null, reviewOptions = null) {
-      const historyItem = {
-        feature: feature,
-        message: message,
-        result: result,
-        schema: schema,
-        code: code,
-        reviewOptions: reviewOptions,
-        timestamp: new Date().toISOString()
-      };
-      
-      promptHistory.push(historyItem);
+    function savePromptToHistory(feature, message, payload) {
+      promptHistory.push({ feature, message, ...payload, timestamp: new Date().toISOString() });
       saveHistory();
       updateHistoryUI();
     }
 
-    // Toggle Sidebar
+    // ── Sidebar / navigation ──────────────────────────────────────────────────
     function toggleSidebar() {
       sidebarOpen = !sidebarOpen;
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const hamburger = document.getElementById('hamburger');
-
-      if (sidebarOpen) {
-        sidebar.classList.remove('collapsed');
-        mainContent.classList.remove('sidebar-collapsed');
-        hamburger.classList.remove('sidebar-closed');
-      } else {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.add('sidebar-collapsed');
-        hamburger.classList.add('sidebar-closed');
-      }
+      document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+      document.getElementById('mainContent').classList.toggle('sidebar-collapsed', !sidebarOpen);
+      document.getElementById('hamburger').classList.toggle('sidebar-closed', !sidebarOpen);
     }
-
-    // Toggle Features Dropdown
     function toggleFeatures() {
       featuresOpen = !featuresOpen;
-      const submenu = document.getElementById('featureSubmenu');
-      const chevron = document.getElementById('featuresChevron');
-
-      if (featuresOpen) {
-        submenu.classList.add('open');
-        chevron.classList.add('rotated');
-      } else {
-        submenu.classList.remove('open');
-        chevron.classList.remove('rotated');
-      }
+      document.getElementById('featureSubmenu').classList.toggle('open', featuresOpen);
+      document.getElementById('featuresChevron').classList.toggle('rotated', featuresOpen);
     }
-
-    // Toggle History Dropdown
     function toggleHistory() {
       historyOpen = !historyOpen;
-      const submenu = document.getElementById('historySubmenu');
-      const chevron = document.getElementById('historyChevron');
-
-      if (historyOpen) {
-        submenu.classList.add('open');
-        chevron.classList.add('rotated');
-      } else {
-        submenu.classList.remove('open');
-        chevron.classList.remove('rotated');
-      }
+      document.getElementById('historySubmenu').classList.toggle('open', historyOpen);
+      document.getElementById('historyChevron').classList.toggle('rotated', historyOpen);
     }
+    function newPrompt() { location.reload(); }
 
-    // New Prompt
-    function newPrompt() {
-      location.reload();
-    }
-
-    // Select Feature
     function selectFeature(feature, skipClear = false) {
-      const previousFeature = currentFeature;
-      
-      // Save current feature's input before switching
-      if (previousFeature && previousFeature !== feature) {
-        featureInputs[previousFeature] = document.getElementById('mainInput').value;
-        if (previousFeature === 'sql') {
-          const schemaInput = document.getElementById('schemaInput');
-          if (schemaInput) {
-            featureSchemas.sql = schemaInput.value;
-          }
+      const prev = currentFeature;
+      if (prev && prev !== feature) {
+        featureInputs[prev] = document.getElementById('mainInput').value;
+        if (prev === 'sql') {
+          const si = document.getElementById('schemaInput');
+          if (si) featureSchemas.sql = si.value;
         }
       }
-
       currentFeature = feature;
-
-      // Update selected state in sidebar
-      document.querySelectorAll('.feature-item').forEach(item => {
-        item.classList.remove('selected');
-      });
+      document.querySelectorAll('.feature-item').forEach(i => i.classList.remove('selected'));
       document.getElementById(`feature-${feature}`).classList.add('selected');
 
-      // Show feature card
-      const featureCard = document.getElementById('featureCard');
-      featureCard.classList.remove('hidden');
-
-      // Show feature-specific content
-      const featureContent = document.getElementById('featureContent');
-
+      const fc = document.getElementById('featureContent');
       if (feature === 'code') {
-        featureContent.innerHTML = `
+        fc.innerHTML = `
           <div class="feature-title">👨‍💻 Code Review</div>
-          <p class="feature-description">Paste your code in the message box below. Our AI will analyze it for security vulnerabilities, performance issues, best practices, and more.</p>
-          
+          <p class="feature-description">Paste your code below. Our AI will analyze it for security, performance, best practices, and more.</p>
           <p class="label">📋 Review Focus</p>
           <div class="checkbox-group">
-            <div class="checkbox-item" onclick="toggleCheckbox('opt-security')">
-              <input type="checkbox" id="opt-security" value="security">
-              <label>Security</label>
-            </div>
-            <div class="checkbox-item" onclick="toggleCheckbox('opt-performance')">
-              <input type="checkbox" id="opt-performance" value="performance">
-              <label>Performance</label>
-            </div>
-            <div class="checkbox-item" onclick="toggleCheckbox('opt-clarity')">
-              <input type="checkbox" id="opt-clarity" value="clarity">
-              <label>Code Clarity</label>
-            </div>
-            <div class="checkbox-item" onclick="toggleCheckbox('opt-best-practices')">
-              <input type="checkbox" id="opt-best-practices" value="best-practices">
-              <label>Best Practices</label>
-            </div>
-            <div class="checkbox-item" onclick="toggleCheckbox('opt-edge-cases')">
-              <input type="checkbox" id="opt-edge-cases" value="edge-cases">
-              <label>Edge Cases</label>
-            </div>
-          </div>
-        `;
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-security')"><input type="checkbox" id="opt-security" value="security"><label>Security</label></div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-performance')"><input type="checkbox" id="opt-performance" value="performance"><label>Performance</label></div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-clarity')"><input type="checkbox" id="opt-clarity" value="clarity"><label>Code Clarity</label></div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-best-practices')"><input type="checkbox" id="opt-best-practices" value="best-practices"><label>Best Practices</label></div>
+            <div class="checkbox-item" onclick="toggleCheckbox('opt-edge-cases')"><input type="checkbox" id="opt-edge-cases" value="edge-cases"><label>Edge Cases</label></div>
+          </div>`;
         document.getElementById('mainInput').placeholder = 'Paste your code here for review...';
       } else if (feature === 'sql') {
-        featureContent.innerHTML = `
+        fc.innerHTML = `
           <div class="feature-title">🗄️ SQL Query Generator</div>
           <p class="feature-description">Provide your database schema and describe what data you need. We'll generate optimized SQL queries with explanations.</p>
-          
           <p class="label">📊 Database Schema</p>
-          <input type="text" id="schemaInput" placeholder="e.g., users(id, name, email, is_active, signup_date)" style="line-height: 1.2;">
-        `;
+          <input type="text" id="schemaInput" placeholder="e.g., users(id, name, email, is_active, signup_date)" style="line-height:1.2;">`;
         document.getElementById('mainInput').placeholder = 'Describe the SQL query you need...';
       } else {
-        featureContent.innerHTML = `
+        fc.innerHTML = `
           <div class="feature-title">✨ Prompt Enhancement</div>
-          <p class="feature-description">Enter your prompt below and we'll enhance it for better clarity, specificity, and results. Perfect for improving AI interactions.</p>
-        `;
+          <p class="feature-description">Enter your prompt below and we'll enhance it using AI — with real-time intent detection, improvement tips, and a live-streamed optimized version.</p>`;
         document.getElementById('mainInput').placeholder = 'Enter your prompt to enhance...';
       }
 
-      // Restore saved input for this feature
       document.getElementById('mainInput').value = featureInputs[feature] || '';
-
-      // Restore schema for SQL
       if (feature === 'sql') {
         setTimeout(() => {
-          const schemaInput = document.getElementById('schemaInput');
-          if (schemaInput && featureSchemas.sql) {
-            schemaInput.value = featureSchemas.sql;
-          }
+          const si = document.getElementById('schemaInput');
+          if (si && featureSchemas.sql) si.value = featureSchemas.sql;
         }, 50);
       }
-
-      // Hide results when switching features (they only persist in history)
-      if (!skipClear) {
-        document.getElementById('resultsArea').classList.add('hidden');
-      }
+      if (!skipClear) document.getElementById('resultsArea').classList.add('hidden');
     }
 
-    // Toggle Checkbox
     function toggleCheckbox(id) {
-      const checkbox = document.getElementById(id);
-      const container = checkbox.parentElement;
-      
-      checkbox.checked = !checkbox.checked;
-      
-      if (checkbox.checked) {
-        container.classList.add('checked');
-      } else {
-        container.classList.remove('checked');
-      }
+      const cb = document.getElementById(id);
+      cb.checked = !cb.checked;
+      cb.parentElement.classList.toggle('checked', cb.checked);
+    }
+    function getSelectedReviewOptions() {
+      const items = document.querySelectorAll('.checkbox-item.checked');
+      if (!items.length) return 'Review this code';
+      return 'Review this code focusing on: ' +
+        Array.from(items).map(i => i.querySelector('label').textContent.toLowerCase()).join(', ');
+    }
+    function getSelectedCheckboxValues() {
+      return Array.from(document.querySelectorAll('.checkbox-item.checked input')).map(i => i.value);
     }
 
-    // Send Message
+    // ── Send ──────────────────────────────────────────────────────────────────
     async function sendMessage() {
-      if (!currentFeature) {
-        alert('Please select a feature first!');
-        return;
-      }
-
       const message = document.getElementById('mainInput').value.trim();
-      
-      // Validation
-      if (!message) {
-        alert('Please enter a message!');
-        return;
-      }
-
+      if (!message) { alert('Please enter a message!'); return; }
       if (currentFeature === 'sql') {
-        const schemaInput = document.getElementById('schemaInput');
-        if (!schemaInput || !schemaInput.value.trim()) {
-          alert('⚠️ Please provide a database schema!');
-          return;
-        }
+        const si = document.getElementById('schemaInput');
+        if (!si || !si.value.trim()) { alert('⚠️ Please provide a database schema!'); return; }
       }
 
-      // Show stop button with loading spinner, hide send
       isGenerating = true;
       document.getElementById('sendBtn').classList.add('hidden');
       document.getElementById('stopBtn').classList.remove('hidden');
-
-      // Build context
-      const context = {};
-      let schema = null;
-      let code = null;
-      
-      if (currentFeature === 'code') {
-        code = message;
-        currentCode = message; // Store the code
-        context.code = message;
-        const selectedOptions = getSelectedReviewOptions();
-        context.reviewFocus = selectedOptions;
-	context.language = 'Auto-detect';
-      } else if (currentFeature === 'sql') {
-        const schemaInput = document.getElementById('schemaInput');
-        if (schemaInput && schemaInput.value.trim()) {
-          schema = schemaInput.value.trim();
-          context.schema = schema;
-        }
-      }
-
-      // Create abort controller for stopping
       abortController = new AbortController();
 
       try {
-        const response = await fetch('http://localhost:3000/api/process', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            message: currentFeature === 'code' ? getSelectedReviewOptions() : message,
-            context 
-          }),
-          signal: abortController.signal
-        });
-
-        const data = await response.json();
-        
-        // Save to history (with review options for code review)
-        let reviewOptions = null;
-        if (currentFeature === 'code') {
-          reviewOptions = getSelectedCheckboxValues();
-        }
-        savePromptToHistory(currentFeature, message, data, schema, code, reviewOptions);
-        
-        displayResults(data);
-        
-        // Auto-scroll to results
-        setTimeout(() => {
-          document.getElementById('resultsArea').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-          });
-        }, 100);
-        
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          alert('Generation stopped!');
+        if (currentFeature === 'prompt') {
+          await runOptimizeStream(message);
         } else {
-          alert('Error: ' + error.message);
+          await runLegacyProcess(message);
         }
+      } catch (err) {
+        if (err.name !== 'AbortError') alert('Error: ' + err.message);
+        else alert('Generation stopped!');
       } finally {
         isGenerating = false;
         document.getElementById('sendBtn').classList.remove('hidden');
@@ -1004,180 +614,342 @@
       }
     }
 
-    // Stop Generation
     function stopGeneration() {
-      if (abortController) {
-        abortController.abort();
-      }
+      if (abortController) abortController.abort();
     }
 
-    // Get Selected Review Options
-    function getSelectedReviewOptions() {
-      const checkboxes = document.querySelectorAll('.checkbox-item.checked');
-      if (checkboxes.length === 0) {
-        return 'Review this code';
-      }
-      const options = Array.from(checkboxes).map(item => {
-        return item.querySelector('label').textContent;
-      });
-      return `Review this code focusing on: ${options.join(', ').toLowerCase()}`;
-    }
-
-    // Get Selected Checkbox Values (for saving to history)
-    function getSelectedCheckboxValues() {
-      const checkboxes = document.querySelectorAll('.checkbox-item.checked input[type="checkbox"]');
-      return Array.from(checkboxes).map(checkbox => checkbox.value);
-    }
-
-    // Display Results
-    function displayResults(data) {
+    // ── Phase 3: Streaming optimize pipeline ──────────────────────────────────
+    async function runOptimizeStream(prompt) {
+      // Scaffold empty result cards
       const resultsArea = document.getElementById('resultsArea');
       resultsArea.classList.remove('hidden');
+      resultsArea.innerHTML = `
+        <div class="result-card" id="card-intent">
+          <div class="section-title">🏷️ Detected Intent</div>
+          <div id="intent-slot"><span style="color:#9ca3af;font-size:13px;">Classifying…</span></div>
+        </div>
+        <div class="result-card" id="card-tips">
+          <div class="section-title">💡 Improvement Tips</div>
+          <div class="tip-list" id="tip-list"></div>
+        </div>
+        <div class="result-card" id="card-preview">
+          <div class="section-title">✨ Optimized Prompt</div>
+          <div class="live-preview-box" id="preview-box"><span class="stream-cursor" id="cursor"></span></div>
+          <div class="live-preview-actions" id="preview-actions" style="display:none;"></div>
+        </div>
+        <div class="result-card hidden" id="card-quality">
+          <div class="section-title">📊 Quality Score</div>
+          <div id="quality-slot"></div>
+        </div>
+        <div class="result-card hidden" id="card-diff">
+          <div class="section-title">🔍 Diff View</div>
+          <div id="diff-slot"></div>
+        </div>`;
 
+      resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Fetch SSE stream
+      const response = await fetch('/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, tipCount: 4 }),
+        signal: abortController.signal,
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullOutput = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop();
+        for (const part of parts) {
+          if (!part.startsWith('data: ')) continue;
+          let evt;
+          try { evt = JSON.parse(part.slice(6)); } catch { continue; }
+          switch (evt.type) {
+            case 'intent':   handleIntentEvent(evt);  break;
+            case 'tip':      handleTipEvent(evt);     break;
+            case 'chunk':
+              fullOutput += evt.text;
+              handleChunkEvent(evt.text);
+              break;
+            case 'quality':  handleQualityEvent(evt); break;
+            case 'done':     handleDoneEvent(prompt, fullOutput); break;
+            case 'error':    throw new Error(evt.message || 'Stream error'); break;
+          }
+        }
+      }
+    }
+
+    function handleIntentEvent({ intent, confidence, subtype }) {
+      const slot = document.getElementById('intent-slot');
+      const label = intent === 'NATURAL_LANGUAGE' ? 'Natural Language' : intent === 'HYBRID' ? 'Hybrid' : 'Code';
+      const sub = subtype?.code || subtype?.nl;
+      slot.innerHTML = `
+        <div class="intent-row">
+          <span class="intent-badge ${intent}">
+            <span class="intent-dot"></span>${label}
+          </span>
+          <span class="intent-confidence">${Math.round(confidence * 100)}% confidence${sub ? ` · ${sub}` : ''}</span>
+        </div>`;
+    }
+
+    function handleTipEvent(tip) {
+      const list = document.getElementById('tip-list');
+      const catClass = `cat-${tip.category}`;
+      const card = document.createElement('div');
+      card.className = 'tip-card';
+      card.innerHTML = `
+        <span class="category-badge ${catClass}">${tip.category}</span>
+        <div>
+          <div class="tip-text">${escapeHtml(tip.text)}</div>
+          <div class="tip-apply">→ ${escapeHtml(tip.applyTemplate)}</div>
+        </div>`;
+      list.appendChild(card);
+    }
+
+    function handleChunkEvent(text) {
+      const box = document.getElementById('preview-box');
+      const cursor = document.getElementById('cursor');
+      // Insert text before cursor
+      const textNode = document.createTextNode(text);
+      box.insertBefore(textNode, cursor);
+    }
+
+    function handleQualityEvent({ score, label, breakdown }) {
+      const card = document.getElementById('card-quality');
+      card.classList.remove('hidden');
+      const colorClass = score >= 85 ? 'quality-Excellent' : score >= 70 ? 'quality-Good' : 'quality-Fair';
+      const bars = [
+        ['Length',      breakdown.lengthScore,      25],
+        ['Specificity', breakdown.specificityScore,  25],
+        ['Structure',   breakdown.structureScore,    25],
+        ['Clarity',     breakdown.clarityScore,      25],
+      ];
+      document.getElementById('quality-slot').innerHTML = `
+        <div class="quality-row">
+          <div class="quality-score-badge">
+            <span class="quality-number" style="color:${score>=85?'#15803d':score>=70?'#1d4ed8':'#b45309'}">${score}</span>
+            <span class="quality-max">/100</span>
+          </div>
+          <span class="quality-label ${colorClass}">${label}</span>
+          <div class="quality-bar-group">
+            ${bars.map(([lbl, val, max]) => `
+              <div class="quality-bar-row">
+                <span class="quality-bar-label">${lbl}</span>
+                <div class="quality-bar-track"><div class="quality-bar-fill" style="width:${Math.round(val/max*100)}%"></div></div>
+                <span class="quality-bar-val">${val}</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function handleDoneEvent(original, optimized) {
+      // Remove blinking cursor
+      const cursor = document.getElementById('cursor');
+      if (cursor) cursor.remove();
+
+      // Show copy actions
+      const actions = document.getElementById('preview-actions');
+      if (actions) {
+        actions.style.display = 'flex';
+        actions.innerHTML = `
+          <button class="copy-btn" onclick="copyText(${JSON.stringify(optimized)})">📋 Copy Optimized Prompt</button>`;
+      }
+
+      // Render diff
+      const diffCard = document.getElementById('card-diff');
+      diffCard.classList.remove('hidden');
+      document.getElementById('diff-slot').innerHTML = buildDiff(original, optimized);
+
+      // Save to history
+      const previewBox = document.getElementById('preview-box');
+      savePromptToHistory('prompt', original, {
+        optimizeResult: { optimized, intentHtml: document.getElementById('intent-slot').innerHTML }
+      });
+
+      setTimeout(() => diffCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+
+    // ── Diff builder (word-level) ──────────────────────────────────────────────
+    function buildDiff(a, b) {
+      const aWords = a.split(/(\s+)/);
+      const bWords = b.split(/(\s+)/);
+      // Simple greedy diff: highlight words in original not in optimized (in order)
+      // For display clarity we just show both sides with minimal inline hints
+      return `
+        <div class="diff-grid">
+          <div class="diff-pane original">
+            <div class="diff-pane-header">− Original</div>
+            <div class="diff-pane-body">${escapeHtml(a)}</div>
+          </div>
+          <div class="diff-pane optimized">
+            <div class="diff-pane-header">+ Optimized</div>
+            <div class="diff-pane-body">${escapeHtml(b)}</div>
+          </div>
+        </div>`;
+    }
+
+    // ── Restore optimized results from history ─────────────────────────────────
+    function renderOptimizeResults(original, optimizeResult) {
+      const resultsArea = document.getElementById('resultsArea');
+      resultsArea.classList.remove('hidden');
+      const { optimized, intentHtml } = optimizeResult;
+      resultsArea.innerHTML = `
+        <div class="result-card">
+          <div class="section-title">🏷️ Detected Intent</div>
+          <div id="intent-slot">${intentHtml || ''}</div>
+        </div>
+        <div class="result-card">
+          <div class="section-title">✨ Optimized Prompt</div>
+          <div class="live-preview-box">${escapeHtml(optimized)}</div>
+          <div class="live-preview-actions">
+            <button class="copy-btn" onclick="copyText(${JSON.stringify(optimized)})">📋 Copy Optimized Prompt</button>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="section-title">🔍 Diff View</div>
+          ${buildDiff(original, optimized)}
+        </div>`;
+    }
+
+    // ── Legacy: Code Review & SQL via /api/process ────────────────────────────
+    async function runLegacyProcess(message) {
+      const context = {};
+      let schema = null, code = null;
+      if (currentFeature === 'code') {
+        code = message; currentCode = message;
+        context.code = message;
+        context.reviewFocus = getSelectedReviewOptions();
+        context.language = 'Auto-detect';
+      } else if (currentFeature === 'sql') {
+        const si = document.getElementById('schemaInput');
+        if (si && si.value.trim()) { schema = si.value.trim(); context.schema = schema; }
+      }
+
+      const response = await fetch('/api/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: currentFeature === 'code' ? getSelectedReviewOptions() : message,
+          context
+        }),
+        signal: abortController.signal,
+      });
+      const data = await response.json();
+      savePromptToHistory(currentFeature, message, { result: data, schema, code,
+        reviewOptions: currentFeature === 'code' ? getSelectedCheckboxValues() : null });
+      displayLegacyResults(data);
+      setTimeout(() => document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function displayLegacyResults(data) {
+      const area = document.getElementById('resultsArea');
+      area.classList.remove('hidden');
       let html = '<div class="result-card">';
       html += `<h3>📊 Results</h3>`;
       html += `<p><strong>Intent:</strong> ${data.intent || 'N/A'}</p>`;
-      
       if (data.result) {
         if (data.result.enhanced) {
-          html += `<p style="margin-top: 15px;"><strong>✨ Enhanced Prompt:</strong></p>`;
-          html += `<p style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 8px;">${data.result.enhanced}</p>`;
-          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(data.result.enhanced)}\`)">📋 Copy Enhanced Prompt</button>`;
+          html += `<p style="margin-top:15px;"><strong>✨ Enhanced Prompt:</strong></p>`;
+          html += `<p style="white-space:pre-wrap;background:#f8f9fa;padding:15px;border-radius:8px;">${escapeHtml(data.result.enhanced)}</p>`;
+          html += `<button class="copy-btn" onclick="copyText(${JSON.stringify(data.result.enhanced)})">📋 Copy Enhanced Prompt</button>`;
         }
         if (data.result.queries) {
-          html += `<p style="margin-top: 15px;"><strong>🗄️ Generated SQL:</strong></p>`;
+          html += `<p style="margin-top:15px;"><strong>🗄️ Generated SQL:</strong></p>`;
           data.result.queries.forEach(q => {
-            html += `<code style="display: block; background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 6px; font-family: monospace;">${q.sql}</code>`;
-            html += `<p style="font-size: 14px; color: #666;">${q.explanation}</p>`;
+            html += `<code style="display:block;background:#f8f9fa;padding:10px;margin:10px 0;border-radius:6px;font-family:monospace;">${escapeHtml(q.sql)}</code>`;
+            html += `<p style="font-size:14px;color:#666;">${escapeHtml(q.explanation)}</p>`;
           });
         }
         if (data.result.summary) {
-          html += `<p style="margin-top: 15px;"><strong>👨‍💻 Code Review:</strong></p>`;
-          html += `<p>${data.result.summary}</p>`;
-          if (data.result.issues && data.result.issues.length > 0) {
-            html += `<div style="margin-top: 15px;">`;
+          html += `<p style="margin-top:15px;"><strong>👨‍💻 Code Review:</strong></p>`;
+          html += `<p>${escapeHtml(data.result.summary)}</p>`;
+          if (data.result.issues?.length) {
+            html += `<div style="margin-top:15px;">`;
             data.result.issues.forEach(issue => {
               const color = issue.severity === 'critical' ? '#dc3545' : issue.severity === 'high' ? '#fd7e14' : '#ffc107';
-              html += `<div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid ${color}; border-radius: 4px;">`;
-              html += `<strong style="color: ${color};">[${issue.severity.toUpperCase()}]</strong> ${issue.description}<br>`;
-              html += `<em style="font-size: 13px;">💡 Fix: ${issue.suggestion}</em>`;
-              html += `</div>`;
+              html += `<div style="background:#f8f9fa;padding:10px;margin:10px 0;border-left:3px solid ${color};border-radius:4px;">
+                <strong style="color:${color};">[${issue.severity.toUpperCase()}]</strong> ${escapeHtml(issue.description)}<br>
+                <em style="font-size:13px;">💡 Fix: ${escapeHtml(issue.suggestion)}</em></div>`;
             });
-            html += `</div>`;
+            html += '</div>';
           }
           html += `<button class="enhance-btn" id="enhanceBtn" onclick="enhanceCode()">🔧 Enhance Code Based on Review</button>`;
         }
       }
-      
       html += '</div>';
-      resultsArea.innerHTML = html;
+      area.innerHTML = html;
     }
 
-    // Enhance Code
     async function enhanceCode() {
-      if (!currentCode) {
-        alert('No code to enhance!');
-        return;
-      }
-
-      // Show loading state
-      const enhanceBtn = document.getElementById('enhanceBtn');
-      const originalHTML = enhanceBtn.innerHTML;
-      enhanceBtn.disabled = true;
-      enhanceBtn.innerHTML = '<div class="loading-dark"></div> Generating...';
-
+      if (!currentCode) { alert('No code to enhance!'); return; }
+      const btn = document.getElementById('enhanceBtn');
+      const orig = btn.innerHTML;
+      btn.disabled = true; btn.innerHTML = '<div class="loading-dark"></div> Generating…';
       try {
-        const response = await fetch('http://localhost:3000/api/improve-code', {
+        const res = await fetch('/api/improve-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            code: currentCode, 
-            language: 'Auto-detect',
-            instructions: getSelectedReviewOptions()
-          })
+          body: JSON.stringify({ code: currentCode, language: 'Auto-detect', instructions: getSelectedReviewOptions() })
         });
-
-        const data = await response.json();
-        
+        const data = await res.json();
         if (data.success) {
-          // Remove the button first (it will be replaced)
-          enhanceBtn.remove();
-          
+          btn.remove();
           let html = '<div class="result-card">';
           html += `<h3>✨ Enhanced Code</h3>`;
-          html += `<code style="display: block; background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; overflow-x: auto;">${data.improvedCode}</code>`;
-          html += `<p style="margin-top: 15px;"><strong>📝 Changes Made:</strong></p>`;
-          data.changes.forEach(change => {
-            html += `<p>• ${change}</p>`;
-          });
-          html += `<button class="copy-btn" onclick="copyText(\`${escapeForTemplate(data.improvedCode)}\`)">📋 Copy Enhanced Code</button>`;
+          html += `<code style="display:block;background:#2d2d2d;color:#f8f8f2;padding:15px;border-radius:8px;font-family:monospace;white-space:pre-wrap;overflow-x:auto;">${escapeHtml(data.improvedCode)}</code>`;
+          html += `<p style="margin-top:15px;"><strong>📝 Changes Made:</strong></p>`;
+          data.changes.forEach(c => { html += `<p>• ${escapeHtml(c)}</p>`; });
+          html += `<button class="copy-btn" onclick="copyText(${JSON.stringify(data.improvedCode)})">📋 Copy Enhanced Code</button>`;
           html += '</div>';
-          
           document.getElementById('resultsArea').innerHTML += html;
-
-          // Save enhanced code to history
-          const currentHistoryItem = promptHistory[promptHistory.length - 1];
-          if (currentHistoryItem) {
-            currentHistoryItem.enhancedCode = data.improvedCode;
-            currentHistoryItem.enhancedChanges = data.changes;
-            saveHistory();
-          }
-          
-          // Auto-scroll to enhanced code
+          const cur = promptHistory[promptHistory.length - 1];
+          if (cur) { cur.enhancedCode = data.improvedCode; cur.enhancedChanges = data.changes; saveHistory(); }
           setTimeout(() => {
             const cards = document.querySelectorAll('.result-card');
-            cards[cards.length - 1].scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
+            cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 100);
         }
-      } catch (error) {
-        alert('Error generating enhanced code!');
-        enhanceBtn.disabled = false;
-        enhanceBtn.innerHTML = originalHTML;
-      }
+      } catch { alert('Error generating enhanced code!'); btn.disabled = false; btn.innerHTML = orig; }
     }
 
-    // Copy text to clipboard
+    // ── Utilities ──────────────────────────────────────────────────────────────
     function copyText(text) {
       navigator.clipboard.writeText(text);
       alert('✅ Copied to clipboard!');
     }
-
-    // Escape for template literals
-    function escapeForTemplate(text) {
-      return text.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/\\/g, '\\\\');
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
-    
-    // Enter key to send message
-    document.getElementById('mainInput').addEventListener('keydown', function(e) {
-      // Only for main input (not code review or SQL schema)
-      if (e.key === 'Enter' && !e.shiftKey) {
-        // Check if we're in code review feature
-        if (currentFeature === 'code') {
-          // Allow Enter for code input (multi-line)
-          return;
-        }
-    
-        // For other features, send on Enter
-        e.preventDefault();
-        sendMessage();
+
+    // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+    document.getElementById('mainInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey && currentFeature !== 'code') {
+        e.preventDefault(); sendMessage();
       }
     });
- 
-    // Prevent Enter from triggering send in schema input
-    document.addEventListener('focusin', function(e) {
-      if (e.target && e.target.id === 'schemaInput') {
-        e.target.addEventListener('keydown', function(event) {
-          if (event.key === 'Enter') {
-            event.stopPropagation();
-          }
-        });
+    document.addEventListener('focusin', e => {
+      if (e.target?.id === 'schemaInput') {
+        e.target.addEventListener('keydown', ev => { if (ev.key === 'Enter') ev.stopPropagation(); });
       }
     });
 
-    // Load history on startup
     loadHistory();
   </script>
 </body>
