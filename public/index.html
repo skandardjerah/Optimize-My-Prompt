@@ -515,9 +515,6 @@
     <div class="sb-head">
       <div class="sb-logo">✦</div>
       <span class="sb-brand">OptimizeMyPrompt</span>
-      <button class="ico-btn" id="sidebarClose" title="Close sidebar">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
     </div>
 
     <button class="new-btn" id="newBtn">
@@ -635,7 +632,6 @@
 
       // buttons
       document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
-      document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
       document.getElementById('newBtn').addEventListener('click', newConvo);
       document.getElementById('themeBtn').addEventListener('click', toggleTheme);
       document.getElementById('sendBtn').addEventListener('click', handleSend);
@@ -823,7 +819,7 @@
         });
         if (!res.ok) {
           const e = await res.json().catch(() => ({}));
-          throw new Error(e.error || `Server error ${res.status}`);
+          throw new Error(e.message || e.error || `Server error ${res.status}`);
         }
 
         const reader = res.body.getReader();

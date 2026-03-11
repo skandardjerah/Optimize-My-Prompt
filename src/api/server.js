@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PromptEngineerAgent } from '../agent/PromptEngineerAgent.js';
 import helmet from 'helmet';
-import { apiLimiter, enhanceLimiter } from './middleware/rateLimiter.js';
+import { apiLimiter, enhanceLimiter, dailyOptimizeLimit } from './middleware/rateLimiter.js';
 import { IntentClassifier } from '../server/services/IntentClassifier.js';
 import { PromptOptimizer } from '../server/services/PromptOptimizer.js';
 import { StreamHandler } from '../server/services/StreamHandler.js';
@@ -244,7 +244,7 @@ IMPORTANT: Keep the code in ${detectedLanguage}, do NOT convert it to another la
   }
 });
 // POST /api/optimize — SSE streaming optimization pipeline
-app.post('/api/optimize', enhanceLimiter, async (req, res) => {
+app.post('/api/optimize', enhanceLimiter, dailyOptimizeLimit, async (req, res) => {
   const { prompt, intentHint, tipCount } = req.body;
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {

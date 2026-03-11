@@ -39,7 +39,7 @@ export class FeatureExtractor {
       'firebase', 'supabase', 'dynamodb', 'elasticsearch',
       // Infrastructure & tooling
       'docker', 'kubernetes', 'nginx', 'webpack', 'vite', 'babel', 'eslint', 'jest',
-      'mocha', 'cypress', 'git', 'github', 'gitlab', 'ci', 'cd', 'npm', 'yarn', 'pip',
+      'mocha', 'cypress', 'git', 'ci', 'cd', 'npm', 'yarn', 'pip',
       'aws', 'azure', 'gcp', 'heroku', 'vercel', 'netlify', 'terraform', 'ansible',
       // Concepts & constructs
       'api', 'rest', 'http', 'cors', 'jwt', 'oauth', 'websocket', 'sse', 'grpc',
@@ -90,6 +90,7 @@ export class FeatureExtractor {
       'give', 'list', 'what', 'how', 'why', 'when', 'where', 'who', 'which',
       'please', 'could', 'would', 'should', 'need', 'want', 'think', 'feel',
       'understand', 'summarize', 'analyze', 'discuss', 'compare', 'suggest',
+      'interested', 'plan', 'learning', 'studying', 'looking',
     ]);
 
     this.creativeDomain = new Set([
