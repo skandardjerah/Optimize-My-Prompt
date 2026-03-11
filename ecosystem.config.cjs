@@ -1,5 +1,5 @@
 /**
- * PM2 Ecosystem Config — PromptCraft AI
+ * PM2 Ecosystem Config — OptimizeMyPrompt AI
  *
  * Must use .cjs extension because the project is "type": "module".
  *

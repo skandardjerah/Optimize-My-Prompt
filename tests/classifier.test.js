@@ -113,6 +113,40 @@ const LABELED_PROMPTS = [
   { prompt: 'Write a technical interview preparation guide covering both system design concepts and coding challenges', intent: 'HYBRID' },
   { prompt: 'Explain the CAP theorem with practical examples and how it affects distributed database design choices', intent: 'HYBRID' },
   { prompt: 'Create a guide to authentication best practices covering both security concepts and implementation code', intent: 'HYBRID' },
+
+  // ── EDGE CASES (20) ────────────────────────────────────────────────────────
+
+  // Short / terse CODE prompts
+  { prompt: 'Fix the null pointer exception in my Java code', intent: 'CODE' },
+  { prompt: 'Why does my React component re-render infinitely?', intent: 'CODE' },
+  { prompt: 'How do I center a div in CSS?', intent: 'CODE' },
+  { prompt: 'What is the time complexity of binary search?', intent: 'CODE' },
+  { prompt: 'Refactor this callback hell into async/await in Node.js', intent: 'CODE' },
+
+  // NL prompts that contain technical-looking words
+  { prompt: 'Create a 7-day meal plan for someone following a vegan diet', intent: 'NATURAL_LANGUAGE' },
+  { prompt: 'Write a guide for new parents on building healthy sleep routines for infants', intent: 'NATURAL_LANGUAGE' },
+  { prompt: 'Explain the process of photosynthesis to a middle school student', intent: 'NATURAL_LANGUAGE' },
+  { prompt: 'Create a monthly budget plan for a family of four earning 80 000 a year', intent: 'NATURAL_LANGUAGE' },
+  { prompt: 'Describe the psychological effects of social media on teenagers', intent: 'NATURAL_LANGUAGE' },
+
+  // Prompts with misleading SQL-like words in NL context
+  { prompt: 'Order the key events of World War II chronologically and explain their significance', intent: 'NATURAL_LANGUAGE' },
+  { prompt: 'Select the most persuasive arguments for universal basic income and explain each', intent: 'NATURAL_LANGUAGE' },
+
+  // CODE prompts with NL action words
+  { prompt: 'Show me how to implement OAuth2 authentication in Express.js', intent: 'CODE' },
+  { prompt: 'Help me understand how JavaScript closures work with a practical example', intent: 'HYBRID' },
+  { prompt: 'Describe the difference between TCP and UDP protocols for a backend developer', intent: 'HYBRID' },
+
+  // ML / AI technical prompts
+  { prompt: 'Implement a gradient descent optimizer from scratch in Python using NumPy', intent: 'CODE' },
+  { prompt: 'Explain neural network backpropagation with a simple Python example', intent: 'HYBRID' },
+
+  // Prompts mixing business and tech
+  { prompt: 'Write a technical roadmap document for migrating our monolith to microservices', intent: 'HYBRID' },
+  { prompt: 'Analyze our PostgreSQL query performance and suggest index optimizations', intent: 'CODE' },
+  { prompt: 'Create a product requirements document for a REST API developer portal', intent: 'HYBRID' },
 ];
 
 // ── Run tests ──────────────────────────────────────────────────────────────

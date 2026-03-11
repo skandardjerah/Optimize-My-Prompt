@@ -6,17 +6,24 @@
 export class FeatureExtractor {
   constructor() {
     // Actual programming language keywords (appear inside code)
+    // INCLUSION RULE: only keep tokens that almost never appear in natural English prose.
+    // Excluded: SQL words (caught by Stage 1), and ambiguous English words like
+    // for/while/if/else/class/new/this/return/null/true/false/type/string/number.
     this.codeKeywords = new Set([
-      'function', 'class', 'const', 'let', 'var', 'import', 'export', 'def', 'return',
-      'async', 'await', 'promise', 'callback', 'interface', 'type', 'struct', 'enum',
-      'public', 'private', 'protected', 'static', 'void', 'null', 'undefined',
-      'true', 'false', 'new', 'this', 'super', 'extends', 'implements', 'require',
-      'module', 'prototype', 'string', 'number', 'boolean', 'int', 'float',
-      'if', 'else', 'for', 'while', 'switch', 'case', 'break', 'continue',
-      'try', 'catch', 'finally', 'throw', 'typeof', 'instanceof', 'yield',
-      // SQL keywords
-      'select', 'from', 'join', 'where', 'group', 'having', 'order', 'insert',
-      'update', 'delete', 'drop', 'alter', 'create', 'index', 'view',
+      // Variable / scope declarators
+      'const', 'var', 'def', 'let',
+      // Type keywords
+      'typeof', 'instanceof', 'boolean', 'struct', 'enum', 'undefined',
+      // Async primitives (also in techDomain — double-signal is intentional)
+      'async', 'await', 'yield',
+      // Module system
+      'import', 'export', 'require',
+      // OOP — rare in NL prose
+      'extends', 'implements',
+      // Low-ambiguity numeric types
+      'int', 'float',
+      // Exception keyword (less common than try/catch in English)
+      'throw',
     ]);
 
     // Programming-specific vocabulary — strongest CODE domain signal
@@ -37,9 +44,10 @@ export class FeatureExtractor {
       // Concepts & constructs
       'api', 'rest', 'http', 'cors', 'jwt', 'oauth', 'websocket', 'sse', 'grpc',
       'database', 'schema', 'migration', 'query', 'endpoint', 'middleware', 'webhook',
-      'algorithm', 'sorting', 'recursion', 'complexity', 'implementation',
+      'algorithm', 'sorting', 'recursion', 'complexity',
       'hook', 'hooks', 'component', 'render', 'state', 'props', 'redux', 'context',
-      'async', 'await', 'promise', 'callback', 'closure', 'prototype', 'decorator',
+      'async', 'await', 'promise', 'promises', 'callback', 'callbacks', 'closure', 'closures',
+      'prototype', 'decorator', 'decorators', 'generator', 'generators', 'iterator', 'iterators',
       'repository', 'pipeline', 'microservice', 'microservices', 'monolith', 'serverless',
       'cache', 'caching', 'pagination', 'authentication', 'authorization', 'encryption',
       'hash', 'heap', 'stack', 'queue', 'tree', 'graph', 'linked', 'binary',
@@ -48,14 +56,22 @@ export class FeatureExtractor {
       'regex', 'parser', 'compiler', 'runtime', 'bytecode', 'memory', 'thread',
       'mutex', 'concurrency', 'parallelism', 'socket', 'port', 'protocol',
       'json', 'xml', 'yaml', 'csv', 'orm', 'crud', 'mvc', 'sdk', 'cli',
+      'websocket', 'websockets',   // both singular and plural
+      'garbage', 'collection',     // garbage collection
+      // ML / AI terms
+      'gradient', 'descent', 'neural', 'pytorch', 'tensorflow', 'keras',
+      'embedding', 'tensor', 'backpropagation', 'epoch', 'inference',
       // Additional specifics
       'node', 'js', 'ts', 'py', 'rb', 'go', 'rs',
       'framework', 'library', 'package', 'module', 'dependency', 'scaffold',
-      'lint', 'test', 'mock', 'stub', 'coverage', 'deployment', 'production', 'staging',
-      'code', 'coding', 'codebase', 'refactor', 'debug', 'breakpoint', 'exception',
-      'interface', 'abstract', 'generic', 'polymorphism', 'inheritance', 'encapsulation',
+      'lint', 'mock', 'stub', 'coverage', 'deployment', 'production', 'staging',
+      'coding', 'codebase', 'refactor', 'debug', 'breakpoint', 'exception',
+      'interface', 'abstract', 'generic', 'generics', 'polymorphism', 'inheritance', 'encapsulation',
       'variable', 'function', 'method', 'class', 'object', 'array', 'loop', 'iteration',
       'script', 'automation', 'build', 'compile', 'transpile', 'bundle',
+      // NOTE: 'code' and 'coding' are intentionally excluded — they appear in natural-language
+      // requests ("write a code for X") and cause false CODE classifications. Specific signals
+      // like language names, frameworks, and constructs are sufficient for real code prompts.
     ]);
 
     // Words that signal educational/documentation writing — key HYBRID indicator
@@ -64,6 +80,8 @@ export class FeatureExtractor {
       'introduction', 'blog', 'article', 'course', 'lesson', 'examples', 'example',
       'postmortem', 'report', 'specification', 'spec', 'whitepaper', 'presentation',
       'comparison', 'explanation', 'implementation', 'handbook', 'cheatsheet',
+      'study', 'analysis', 'primer', 'notes', 'breakdown', 'explainer',
+      'difference', 'differences', 'roadmap', 'document',
     ]);
 
     // Natural language writing/task keywords

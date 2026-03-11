@@ -17,6 +17,11 @@ export class IntentClassifier {
     // SQL DML/DDL: must have a verb AND a table keyword
     this.sqlRe = /\b(SELECT|INSERT|UPDATE|DELETE|CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE)\b/i;
     this.sqlCtxRe = /\b(FROM|INTO|SET|TABLE|JOIN|WHERE|GROUP\s+BY|ORDER\s+BY)\b/i;
+
+    // Direct code-analysis verbs: signal a request to inspect/fix existing code, not produce docs
+    this.directAnalysisRe = /\b(analyze|analyse|debug|fix|review|audit|inspect|benchmark|profile|measure|trace)\b/i;
+    // Educational-output verbs: signal the user wants a written/produced artifact
+    this.educationalOutputRe = /\b(write|create|draft|produce|generate|document|publish|make)\b/i;
   }
 
   /**
@@ -56,8 +61,11 @@ export class IntentClassifier {
     let adjNl = nl + (intentHint === 'NL' || intentHint === 'NATURAL_LANGUAGE' ? 1 : 0);
 
     // ── Stage 2: HYBRID gate ──────────────────────────────────────────────
-    // HYBRID = technical topic discussed in an educational/documentary writing context
-    if (adjTech >= 1 && hybridTriggers >= 1) {
+    // HYBRID = technical topic discussed in an educational/documentary writing context.
+    // Skip gate when the prompt is a direct code-analysis request (analyze/debug/review)
+    // WITHOUT an explicit educational-output verb (write/create/produce/document).
+    const isDirectAnalysis = this.directAnalysisRe.test(prompt) && !this.educationalOutputRe.test(prompt);
+    if (!isDirectAnalysis && adjTech >= 1 && hybridTriggers >= 1) {
       const conf = Math.min(0.92, 0.70 + Math.min(adjTech, 3) * 0.05 + Math.min(hybridTriggers, 2) * 0.05);
       return this._result('HYBRID', conf, prompt, 2, startMs, { tech, hybridTriggers, nl });
     }
@@ -73,10 +81,14 @@ export class IntentClassifier {
       intent = 'CODE';
       const margin = codeVotes - nlVotes;
       confidence = Math.min(0.97, 0.65 + margin * 0.06);
-    } else {
+    } else if (nlVotes > codeVotes) {
       intent = 'NATURAL_LANGUAGE';
       const margin = nlVotes - codeVotes;
       confidence = Math.min(0.97, 0.65 + margin * 0.06);
+    } else {
+      // Tie — CODE wins when there is any technical signal, NL otherwise
+      intent = adjTech > 0 ? 'CODE' : 'NATURAL_LANGUAGE';
+      confidence = 0.65;
     }
 
     return this._result(intent, confidence, prompt, 2, startMs, { tech, nl, codeVotes, nlVotes });

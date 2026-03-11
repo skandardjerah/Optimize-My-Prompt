@@ -9,6 +9,7 @@ import { PromptOptimizer } from '../server/services/PromptOptimizer.js';
 import { StreamHandler } from '../server/services/StreamHandler.js';
 import { validateClassifyRequest } from '../server/middleware/requestValidator.js';
 import { errorHandler } from '../server/middleware/errorHandler.js';
+import { FeedbackAnalyzer } from '../server/services/FeedbackAnalyzer.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ const agent = new PromptEngineerAgent({
 
 const classifier = new IntentClassifier();
 const optimizer = new PromptOptimizer({ apiKey: process.env.ANTHROPIC_API_KEY });
+const feedbackAnalyzer = new FeedbackAnalyzer();
 
 app.post('/api/classify', validateClassifyRequest, (req, res, next) => {
   try {
@@ -143,15 +145,16 @@ app.get('/api/logs', (req, res) => {
   res.json(agent.logger.getRecentLogs(lines));
 });
 
-// Feedback endpoints
+// Feedback endpoints — now routed through FeedbackAnalyzer for accuracy tracking
 app.post('/api/feedback', (req, res) => {
-  const { conversationId, rating, comment, promptId } = req.body;
-  agent.feedbackCollector.collect({ conversationId, rating, comment, promptId });
+  const { conversationId, rating, comment, promptId, prompt, intent, confidence } = req.body;
+  if (!rating) return res.status(400).json({ error: 'rating is required' });
+  feedbackAnalyzer.collect({ conversationId, rating, comment, promptId, prompt, intent, confidence });
   res.json({ success: true });
 });
 
 app.get('/api/feedback/analysis', (req, res) => {
-  res.json(agent.feedbackCollector.analyze());
+  res.json(feedbackAnalyzer.analyze());
 });
 
 app.post('/api/templates', (req, res) => {
