@@ -51,14 +51,10 @@ export class PromptEngineerAgent {
   // Step 5: Route to appropriate handler
   let result;
   switch(intent) {
-    case 'sql_query':
-      result = await this.handleSqlQuery(userMessage, mergedContext);
-      break;
-    
     case 'code_review':
       result = await this.handleCodeReview(userMessage, mergedContext);
       break;
-    
+
     case 'prompt_enhancement':
     default:
       result = await this.handlePromptEnhancement(userMessage, mergedContext);
@@ -107,43 +103,14 @@ export class PromptEngineerAgent {
     const result = await this.enhancer.enhance(
       userMessage,
       taskType,
-      context.outputFormat || 'natural'
+      context.outputFormat || 'natural',
+      context.lang || 'en'
     );
 
     return {
       type: 'prompt_enhancement',
       intent: 'prompt_enhancement',
       taskType: taskType,
-      result: result
-    };
-  }
-
-  /**
-   * Handle SQL query requests
-   */
-  async handleSqlQuery(userMessage, context) {
-    console.log('🔄 Generating SQL...');
-
-    if (!context.schema) {
-      return {
-        type: 'sql_query',
-        intent: 'sql_query',
-        result: {
-          success: false,
-          error: 'Database schema is required for SQL generation'
-        }
-      };
-    }
-
-    const result = await this.enhancer.generateSQL(
-      userMessage,
-      context.schema,
-      context.dialect || 'PostgreSQL'
-    );
-
-    return {
-      type: 'sql_query',
-      intent: 'sql_query',
       result: result
     };
   }
@@ -168,7 +135,8 @@ export class PromptEngineerAgent {
     const result = await this.enhancer.reviewCode(
       context.code,
       context.language || 'JavaScript',
-      context.focus || 'all'
+      context.focus || 'all',
+      context.lang || 'en'
     );
 
     return {

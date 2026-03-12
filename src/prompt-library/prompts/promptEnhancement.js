@@ -3,14 +3,15 @@ export const promptEnhancementPrompt = {
   category: "meta",
   version: "1.0",
   description: "Enhances user prompts to get better AI responses",
-  input_variables: ["UserPrompt", "IntendedTask", "DesiredOutputFormat"],
+  input_variables: ["UserPrompt", "IntendedTask", "DesiredOutputFormat", "LanguageInstruction"],
   output_format: "json",
   use_cases: ["prompt_engineering", "ai_optimization", "query_improvement"],
   quality_score: 0.92,
   
   defaults: {
     IntendedTask: "general_query",
-    DesiredOutputFormat: "natural"
+    DesiredOutputFormat: "natural",
+    LanguageInstruction: ""
   },
   
   validation: {
@@ -27,7 +28,7 @@ export const promptEnhancementPrompt = {
     }
   },
   
-  template: `You are a prompt engineering expert. The user has given you a vague or incomplete prompt. Your job is to enhance it into a detailed, actionable prompt that will get excellent results from an AI.
+  template: `{{.LanguageInstruction}}You are a prompt engineering expert. The user has given you a vague or incomplete prompt. Your job is to enhance it into a detailed, actionable prompt that will get excellent results from an AI.
 
 If the user's prompt is meta (asking about prompts themselves), treat it as if they want to improve THEIR OWN prompt writing skills and provide guidance on that specific topic, not a template.
 

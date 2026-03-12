@@ -10,6 +10,7 @@ import { StreamHandler } from '../server/services/StreamHandler.js';
 import { validateClassifyRequest } from '../server/middleware/requestValidator.js';
 import { errorHandler } from '../server/middleware/errorHandler.js';
 import { FeedbackAnalyzer } from '../server/services/FeedbackAnalyzer.js';
+import { getLanguage } from '../i18n/languages.js';
 
 dotenv.config();
 
@@ -32,7 +33,11 @@ const feedbackAnalyzer = new FeedbackAnalyzer();
 
 app.post('/api/classify', validateClassifyRequest, (req, res, next) => {
   try {
-    const result = classifier.classify(req.body.prompt, req.body.intentHint || null);
+    const result = classifier.classify(
+      req.body.prompt,
+      req.body.intentHint || null,
+      req.body.lang || 'en'
+    );
     res.json(result);
   } catch (err) {
     next(err);
@@ -49,17 +54,17 @@ app.get('/health', (req, res) => {
 
 app.post('/api/process', async (req, res) => {
   try {
-    const { message, context } = req.body;
-    
+    const { message, context, lang } = req.body;
+
     if (!message) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Message is required'
       });
     }
-    
+
     console.log('📨 Received request:', { message, context }); // DEBUG
-    
-    const result = await agent.processRequest(message, context || {});
+
+    const result = await agent.processRequest(message, { ...(context || {}), lang: lang || 'en' });
     
     console.log('✅ Detected intent:', result.intent); // DEBUG
     
@@ -182,7 +187,7 @@ app.get('/api/templates/:id', (req, res) => {
 // Improve code endpoint
 app.post('/api/improve-code', async (req, res) => {
   try {
-    const { code, language, instructions } = req.body;
+    const { code, language, instructions, lang } = req.body;
     
     if (!code) {
       return res.status(400).json({ error: 'Code is required' });
@@ -198,7 +203,12 @@ app.post('/api/improve-code', async (req, res) => {
 
     const userInstructions = instructions || 'Review this code';
 
-    const improvePrompt = `You are an expert ${detectedLanguage} developer. The user requested: "${userInstructions}"
+    const langConfig = getLanguage(lang || 'en');
+    const langInstruction = langConfig.systemPromptPrefix
+      ? `${langConfig.systemPromptPrefix}\n\n`
+      : '';
+
+    const improvePrompt = `${langInstruction}You are an expert ${detectedLanguage} developer. The user requested: "${userInstructions}"
 
 Here is the ${detectedLanguage} code that was reviewed:
 
@@ -245,7 +255,7 @@ IMPORTANT: Keep the code in ${detectedLanguage}, do NOT convert it to another la
 });
 // POST /api/optimize — SSE streaming optimization pipeline
 app.post('/api/optimize', enhanceLimiter, dailyOptimizeLimit, async (req, res) => {
-  const { prompt, intentHint, tipCount } = req.body;
+  const { prompt, intentHint, tipCount, lang } = req.body;
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
     return res.status(400).json({ error: 'prompt is required' });
@@ -258,13 +268,14 @@ app.post('/api/optimize', enhanceLimiter, dailyOptimizeLimit, async (req, res) =
   await optimizer.optimize(prompt.trim(), stream, {
     intentHint: intentHint || null,
     tipCount: Math.min(parseInt(tipCount) || 4, 8),
+    lang: lang || 'en',
   });
 });
 
 // POST /api/tips — tips-only (non-streaming JSON)
 app.post('/api/tips', apiLimiter, (req, res, next) => {
   try {
-    const { prompt, intentHint, count } = req.body;
+    const { prompt, intentHint, count, lang } = req.body;
 
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
       return res.status(400).json({ error: 'prompt is required' });
@@ -273,6 +284,7 @@ app.post('/api/tips', apiLimiter, (req, res, next) => {
     const result = optimizer.getTipsOnly(prompt.trim(), {
       intentHint: intentHint || null,
       count: Math.min(parseInt(count) || 5, 10),
+      lang: lang || 'en',
     });
 
     res.json(result);

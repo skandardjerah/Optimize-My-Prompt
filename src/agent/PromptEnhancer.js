@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { Cache } from '../utils/Cache.js';
+import { getLanguage } from '../i18n/languages.js';
 
 export class PromptEnhancer {
   constructor(apiKey, promptLibrary) {
@@ -135,16 +136,22 @@ export class PromptEnhancer {
     return 'Python';
   }
 
-  async enhance(userPrompt, taskType = 'general_query', outputFormat = 'natural') {
+  async enhance(userPrompt, taskType = 'general_query', outputFormat = 'natural', lang = 'en') {
     try {
-      const cacheKey = `${userPrompt}_${taskType}_${outputFormat}`;
+      const cacheKey = `${lang}_${userPrompt}_${taskType}_${outputFormat}`;
       const cached = this.cache.get(cacheKey);
       if (cached) return cached;
+
+      const langConfig = getLanguage(lang);
+      const langInstruction = langConfig.systemPromptPrefix
+        ? `${langConfig.systemPromptPrefix}\n\n`
+        : '';
 
       const enhancementPrompt = this.promptLibrary.renderTemplate('prompt_enhancement', {
         UserPrompt: userPrompt,
         IntendedTask: taskType,
-        DesiredOutputFormat: outputFormat
+        DesiredOutputFormat: outputFormat,
+        LanguageInstruction: langInstruction,
       });
 
       const response = await this.anthropic.messages.create({
@@ -182,43 +189,7 @@ export class PromptEnhancer {
     }
   }
 
-  async generateSQL(query, schema, dialect = 'PostgreSQL') {
-    try {
-      const sqlPrompt = this.promptLibrary.renderTemplate('text_to_sql', {
-        Query: query,
-        Schema: schema,
-        Dialect: dialect
-      });
-
-      const response = await this.anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: sqlPrompt }]
-      });
-
-      const text = this.cleanJSON(response.content[0].text);
-      const result = JSON.parse(text);
-
-      return {
-        success: true,
-        queries: result.suggested_queries,
-        explanation: result.explanation,
-        warnings: result.warnings || [],
-        schema: schema,
-        dialect: dialect
-      };
-
-    } catch (error) {
-      console.error('SQL Generation Error:', error.message);
-      return {
-        success: false,
-        error: error.message,
-        queries: null
-      };
-    }
-  }
-
-  async reviewCode(code, language = 'Auto-detect', focus = 'all') {
+  async reviewCode(code, language = 'Auto-detect', focus = 'all', lang = 'en') {
     try {
       // Auto-detect language if not specified
       let detectedLanguage = language;
@@ -228,8 +199,13 @@ export class PromptEnhancer {
         console.log(`🔍 Detected language: ${detectedLanguage}`);
       }
 
+      const langConfig = getLanguage(lang);
+      const langInstruction = langConfig.systemPromptPrefix
+        ? `${langConfig.systemPromptPrefix}\n\n`
+        : '';
+
       // Build custom review prompt with natural language mention
-      const reviewPrompt = `You are an expert ${detectedLanguage} developer conducting a thorough code review.
+      const reviewPrompt = `${langInstruction}You are an expert ${detectedLanguage} developer conducting a thorough code review.
 
 Review this ${detectedLanguage} code for:
 ${focus === 'all' ? 

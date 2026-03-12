@@ -8,6 +8,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { IntentClassifier } from './IntentClassifier.js';
 import { TipEngine } from './TipEngine.js';
 import { StreamHandler } from './StreamHandler.js';
+import { getLanguage } from '../../i18n/languages.js';
 
 // ── Quality scorer ─────────────────────────────────────────────────────────
 
@@ -50,7 +51,9 @@ function scorePrompt(original, optimized) {
 
 // ── System prompt builder ──────────────────────────────────────────────────
 
-function buildSystemPrompt(intent, subtype) {
+function buildSystemPrompt(intent, subtype, langPrefix = '') {
+  const langInstruction = langPrefix ? `\n\n${langPrefix}` : '';
+
   const base = `You are an expert prompt engineer. Your task is to rewrite the user's prompt to be clearer, more specific, and more effective for AI models.
 
 Guidelines:
@@ -63,21 +66,21 @@ Guidelines:
     return `${base}
 - Specify language, version, and framework when not present
 - Include input/output types or examples
-- Mention error handling and edge cases as appropriate`;
+- Mention error handling and edge cases as appropriate${langInstruction}`;
   }
 
   if (intent === 'HYBRID') {
     return `${base}
 - Balance technical precision with clear prose structure
 - Suggest code examples or diagrams where useful
-- Keep the educational tone while adding specificity`;
+- Keep the educational tone while adding specificity${langInstruction}`;
   }
 
   // NATURAL_LANGUAGE
   return `${base}
 - Clarify audience, tone, and length expectations
 - Add structural guidance (e.g., sections, format)
-- Include any relevant domain context`;
+- Include any relevant domain context${langInstruction}`;
 }
 
 // ── PromptOptimizer ────────────────────────────────────────────────────────
@@ -97,12 +100,12 @@ export class PromptOptimizer {
    * @param {StreamHandler} stream
    * @param {{ intentHint?: string, tipCount?: number }} options
    */
-  async optimize(prompt, stream, { intentHint = null, tipCount = 4 } = {}) {
+  async optimize(prompt, stream, { intentHint = null, tipCount = 4, lang = 'en' } = {}) {
     stream.open();
 
     try {
       // ── Step 1: Classify ─────────────────────────────────────────────────
-      const classification = this.classifier.classify(prompt, intentHint);
+      const classification = this.classifier.classify(prompt, intentHint, lang);
       const { intent, confidence, subtype } = classification;
 
       stream.sendIntent(intent, confidence, subtype);
@@ -116,10 +119,11 @@ export class PromptOptimizer {
       // ── Step 3: Streaming LLM optimization ──────────────────────────────
       let fullOutput = '';
 
+      const langConfig = getLanguage(lang);
       const streamResponse = await this.anthropic.messages.stream({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
-        system: buildSystemPrompt(intent, subtype),
+        system: buildSystemPrompt(intent, subtype, langConfig.systemPromptPrefix),
         messages: [{ role: 'user', content: prompt }],
       });
 
@@ -151,8 +155,8 @@ export class PromptOptimizer {
    * @param {{ intentHint?: string, count?: number }} options
    * @returns {{ intent, confidence, tips }}
    */
-  getTipsOnly(prompt, { intentHint = null, count = 5 } = {}) {
-    const classification = this.classifier.classify(prompt, intentHint);
+  getTipsOnly(prompt, { intentHint = null, count = 5, lang = 'en' } = {}) {
+    const classification = this.classifier.classify(prompt, intentHint, lang);
     const { intent, confidence, subtype } = classification;
     const { tips, fromCache, generatedMs } = this.tipEngine.getTips(
       intent,

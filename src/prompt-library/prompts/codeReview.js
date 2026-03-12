@@ -3,14 +3,15 @@ export const codeReviewPrompt = {
   category: "development",
   version: "1.0",
   description: "Provides detailed code review feedback",
-  input_variables: ["Code", "Language", "ReviewFocus"],
+  input_variables: ["Code", "Language", "ReviewFocus", "LanguageInstruction"],
   output_format: "json",
   use_cases: ["code_quality", "security_audit", "best_practices"],
   quality_score: 0.90,
   
   defaults: {
     Language: "JavaScript",
-    ReviewFocus: "all"
+    ReviewFocus: "all",
+    LanguageInstruction: ""
   },
   
   validation: {
@@ -19,7 +20,7 @@ export const codeReviewPrompt = {
     ReviewFocus: { required: false, type: "string", enum: ["all", "security", "performance", "readability"] }
   },
   
-  template: `You are an expert {{.Language}} developer conducting a code review.
+  template: `{{.LanguageInstruction}}You are an expert {{.Language}} developer conducting a code review.
 
 Review Focus: {{.ReviewFocus}}
 

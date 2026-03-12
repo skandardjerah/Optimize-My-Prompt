@@ -116,11 +116,12 @@ export class FeatureExtractor {
   }
 
   /**
-   * Tokenize prompt into clean alpha sub-tokens.
+   * Tokenize prompt into clean sub-tokens, supporting Unicode letters.
    * "Node.js" → ["node","js"], "async/await" → ["async","await"]
+   * Accented and non-Latin letters (é, ñ, Cyrillic, Arabic) are preserved.
    */
   tokenize(prompt) {
-    return prompt.toLowerCase().split(/[^a-z]+/).filter(t => t.length > 1);
+    return prompt.toLowerCase().split(/[^\p{L}]+/u).filter(t => t.length > 1);
   }
 
   /**
@@ -229,46 +230,73 @@ export class FeatureExtractor {
    * base contribution is softened by −0.5 — the user is likely asking ABOUT the
    * technology in natural language rather than requesting code generation.
    *
-   * Returns the same property names as the legacy countDomains() so that
-   * IntentClassifier requires no changes.
-   *
    * @param {string} prompt
+   * @param {object|null} langConfig  Language config from src/i18n/languages.js.
+   *   When provided, translated keyword arrays are merged with the base English Sets
+   *   before scoring so non-English prompts are classified correctly.
+   *   For CJK languages (langConfig.useSubstringMatch === true) a supplementary
+   *   substring pass is added since the tokenizer cannot split continuous script.
    * @returns {{ tech, nl, hybrid, creative, business, scientific, codeKw, total, ambiguous }}
    */
-  scoreDomains(prompt) {
+  scoreDomains(prompt, langConfig = null) {
     const tokens = this.tokenize(prompt);
+
+    // ── Build language-augmented Sets ────────────────────────────────────────
+    // codeKeywords and techDomain stay English-only (universal for developers).
+    // The NL-signal sets get merged with the translated equivalents.
+    const hasLang = langConfig && (langConfig.nlKeywords?.length > 0);
+    const nlSet       = hasLang ? new Set([...this.nlKeywords,       ...langConfig.nlKeywords])       : this.nlKeywords;
+    const hybridSet   = hasLang ? new Set([...this.hybridTriggers,   ...langConfig.hybridTriggers])   : this.hybridTriggers;
+    const creativeSet = hasLang ? new Set([...this.creativeDomain,   ...langConfig.creativeDomain])   : this.creativeDomain;
+    const bizSet      = hasLang ? new Set([...this.businessDomain,   ...langConfig.businessDomain])   : this.businessDomain;
+    const sciSet      = hasLang ? new Set([...this.scientificDomain, ...langConfig.scientificDomain]) : this.scientificDomain;
 
     const techResult     = this.scoreTechDomain(tokens);
     const codeKwResult   = this.scoreCodeKeywords(tokens);
-    const hybridResult   = this.scoreHybridTriggers(tokens);
-    const nlResult       = this.scoreNlKeywords(tokens);
-    const creativeResult = this.scoreCreativeDomain(tokens);
-    const bizResult      = this.scoreBusinessDomain(tokens);
-    const sciResult      = this.scoreScientificDomain(tokens);
+    const hybridResult   = this._scoreSet(tokens, hybridSet);
+    const nlResult       = this._scoreSet(tokens, nlSet);
+    const creativeResult = this._scoreSet(tokens, creativeSet);
+    const bizResult      = this._scoreSet(tokens, bizSet);
+    const sciResult      = this._scoreSet(tokens, sciSet);
 
     let techScore   = techResult.score;
     let codeKwScore = codeKwResult.score;
+    let nlScore     = nlResult.score;
+    let hybridScore = hybridResult.score;
+    let creativeScore = creativeResult.score;
+    let bizScore    = bizResult.score;
+    let sciScore    = sciResult.score;
+
+    // ── CJK substring supplement ─────────────────────────────────────────────
+    // For zh/ja the tokenizer cannot split continuous script into individual words.
+    // Fall back to checking whether each translated keyword appears as a substring.
+    if (langConfig?.useSubstringMatch) {
+      const lower = prompt.toLowerCase();
+      for (const kw of langConfig.nlKeywords       || []) { if (lower.includes(kw)) nlScore++;      }
+      for (const kw of langConfig.hybridTriggers   || []) { if (lower.includes(kw)) hybridScore++;  }
+      for (const kw of langConfig.creativeDomain   || []) { if (lower.includes(kw)) creativeScore++; }
+      for (const kw of langConfig.businessDomain   || []) { if (lower.includes(kw)) bizScore++;     }
+      for (const kw of langConfig.scientificDomain || []) { if (lower.includes(kw)) sciScore++;     }
+    }
 
     // ── Cross-domain ambiguity resolution (whole-prompt context) ────────────
-    // Count how many domain buckets have at least one match.
     const activeDomains = [
-      techScore, codeKwScore, hybridResult.score,
-      nlResult.score, creativeResult.score, bizResult.score, sciResult.score,
+      techScore, codeKwScore, hybridScore,
+      nlScore, creativeScore, bizScore, sciScore,
     ].filter(s => s > 0).length;
 
     const ambiguous = activeDomains >= 2;
 
     if (ambiguous) {
-      // Tech matches: soften each one that has an NL keyword in its context window.
+      // Tech matches: soften each one whose context window contains an NL keyword.
       for (const { context } of techResult.matches) {
-        if (context.some(t => this.nlKeywords.has(t))) {
+        if (context.some(t => nlSet.has(t))) {
           techScore = Math.max(0, techScore - 0.5);
         }
       }
-
-      // CodeKw matches: apply the same softening.
+      // CodeKw matches: same softening.
       for (const { context } of codeKwResult.matches) {
-        if (context.some(t => this.nlKeywords.has(t))) {
+        if (context.some(t => nlSet.has(t))) {
           codeKwScore = Math.max(0, codeKwScore - 0.5);
         }
       }
@@ -276,11 +304,11 @@ export class FeatureExtractor {
 
     return {
       tech:       techScore,
-      nl:         nlResult.score,
-      hybrid:     hybridResult.score,
-      creative:   creativeResult.score,
-      business:   bizResult.score,
-      scientific: sciResult.score,
+      nl:         nlScore,
+      hybrid:     hybridScore,
+      creative:   creativeScore,
+      business:   bizScore,
+      scientific: sciScore,
       codeKw:     codeKwScore,
       total:      tokens.length,
       ambiguous,

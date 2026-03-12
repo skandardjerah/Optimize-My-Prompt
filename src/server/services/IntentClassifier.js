@@ -1,4 +1,5 @@
 import { FeatureExtractor } from './FeatureExtractor.js';
+import { getLanguage } from '../../i18n/languages.js';
 
 /**
  * IntentClassifier (Tier 2 — Server-Side)
@@ -30,7 +31,7 @@ export class IntentClassifier {
    * @param {string|null} intentHint  Tier 1 hint: 'CODE'|'NL'|'NATURAL_LANGUAGE'|'HYBRID'
    * @returns {{ intent, confidence, tier, subtype, features, processingMs }}
    */
-  classify(prompt, intentHint = null) {
+  classify(prompt, intentHint = null, lang = 'en') {
     const startMs = Date.now();
 
     // ── Stage 1: Hard rules ────────────────────────────────────────────────
@@ -53,7 +54,8 @@ export class IntentClassifier {
     }
 
     // ── Stage 2–3: Domain counting ────────────────────────────────────────
-    const counts = this.extractor.countDomains(prompt);
+    const langConfig = getLanguage(lang);
+    const counts = this.extractor.scoreDomains(prompt, langConfig);
     const { tech, nl, hybrid: hybridTriggers, creative, business, scientific, codeKw } = counts;
 
     // Apply Tier 1 hint by nudging counts
