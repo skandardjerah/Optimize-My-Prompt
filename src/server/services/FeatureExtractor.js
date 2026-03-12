@@ -113,6 +113,17 @@ export class FeatureExtractor {
       'conclusion', 'statistical', 'scientific', 'survey', 'correlation',
       'causation', 'sample', 'population', 'peer',
     ]);
+
+    // Common English prose function words — used ONLY by scoreCodeIntent to
+    // distinguish natural-language sentences from actual code blocks.
+    // Not part of the main vote system.
+    this.proseIndicators = new Set([
+      'is', 'are', 'was', 'were', 'be', 'been', 'am',
+      'the', 'an', 'me', 'my', 'your', 'our', 'its',
+      'it', 'this', 'that', 'these', 'those',
+      'do', 'does', 'did', 'have', 'has', 'had',
+      'not', 'but', 'and', 'or', 'so', 'also',
+    ]);
   }
 
   /**
@@ -313,6 +324,55 @@ export class FeatureExtractor {
       total:      tokens.length,
       ambiguous,
     };
+  }
+
+  /**
+   * Score how strongly the prompt appears to BE code (not just discuss it).
+   *
+   * For each matched codeKeyword, examine its ±5-token context window:
+   *   - Neighbours from codeKeywords or techDomain, with NO prose/NL words nearby
+   *     → the token sits inside actual code → high score (+1.5)
+   *   - Neighbours include prose indicators or NL keywords
+   *     → the token is being discussed in natural language → low score (+0.3)
+   *   - Isolated (no neighbours from any set)
+   *     → moderate signal (+0.8)
+   *
+   * A score ≥ 1.5 in IntentClassifier stage 3 means intent = CODE.
+   *
+   * @param {string[]} tokens
+   * @param {object|null} langConfig
+   * @returns {number}
+   */
+  scoreCodeIntent(tokens, langConfig = null) {
+    const { matches } = this._scoreSet(tokens, this.codeKeywords);
+    if (matches.length === 0) return 0;
+
+    const nlSet = langConfig?.nlKeywords?.length
+      ? new Set([...this.nlKeywords, ...langConfig.nlKeywords])
+      : this.nlKeywords;
+
+    let score = 0;
+    for (const { context } of matches) {
+      const hasNlNeighbour = context.some(
+        t => nlSet.has(t) || this.proseIndicators.has(t)
+      );
+      const hasCodeNeighbour = context.some(
+        t => this.codeKeywords.has(t) || this.techDomain.has(t)
+      );
+
+      if (hasNlNeighbour) {
+        // Code keyword surrounded by prose — user is discussing code, not writing it
+        score += 0.3;
+      } else if (hasCodeNeighbour) {
+        // Code keyword surrounded by other code/tech tokens — this IS code
+        score += 1.5;
+      } else {
+        // Isolated code keyword — moderate signal
+        score += 0.8;
+      }
+    }
+
+    return score;
   }
 
   /**

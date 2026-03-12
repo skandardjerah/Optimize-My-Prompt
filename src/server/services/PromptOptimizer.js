@@ -69,14 +69,7 @@ Guidelines:
 - Mention error handling and edge cases as appropriate${langInstruction}`;
   }
 
-  if (intent === 'HYBRID') {
-    return `${base}
-- Balance technical precision with clear prose structure
-- Suggest code examples or diagrams where useful
-- Keep the educational tone while adding specificity${langInstruction}`;
-  }
-
-  // NATURAL_LANGUAGE
+  // NATURAL_LANGUAGE — covers all text prompts including tech-related ones
   return `${base}
 - Clarify audience, tone, and length expectations
 - Add structural guidance (e.g., sections, format)
