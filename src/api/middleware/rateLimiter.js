@@ -39,7 +39,7 @@ export function dailyOptimizeLimit(req, res, next) {
     return res.status(429).json({
       error: 'daily_limit_reached',
       message: `You've used all ${DAILY_LIMIT} free optimizations for today. Come back tomorrow for more!`,
-      resetsAt: today + 'T00:00:00Z', // next reset is tomorrow midnight UTC
+      resetsAt: today + 'T23:59:59Z',
       limit: DAILY_LIMIT,
       used: entry.count,
     });
