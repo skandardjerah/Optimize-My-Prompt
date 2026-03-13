@@ -3,7 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PromptEngineerAgent } from '../agent/PromptEngineerAgent.js';
 import helmet from 'helmet';
+import jwt from 'jsonwebtoken';
 import { apiLimiter, enhanceLimiter, dailyOptimizeLimit } from './middleware/rateLimiter.js';
+import { requireAuth } from './middleware/auth.js';
+import { UserStore } from '../server/services/UserStore.js';
 import { IntentClassifier } from '../server/services/IntentClassifier.js';
 import { PromptOptimizer } from '../server/services/PromptOptimizer.js';
 import { StreamHandler } from '../server/services/StreamHandler.js';
@@ -65,14 +68,46 @@ app.post('/api/classify', validateClassifyRequest, (req, res, next) => {
 });
 
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    timestamp: new Date(),
-    service: 'Prompt Engineer Agent'
-  });
+  res.json({ status: 'ok', timestamp: new Date(), service: 'Prompt Engineer Agent' });
 });
 
-app.post('/api/process', async (req, res) => {
+// ── Auth routes ────────────────────────────────────────────────────────────────
+
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).json({ error: 'Email and password are required' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return res.status(400).json({ error: 'Invalid email address' });
+  if (password.length < 8)
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  try {
+    const user = await UserStore.create(email, password);
+    const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user });
+  } catch (err) {
+    res.status(409).json({ error: err.message });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).json({ error: 'Email and password are required' });
+  try {
+    const user = await UserStore.verify(email, password);
+    const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
+app.get('/api/auth/me', requireAuth, (req, res) => {
+  res.json({ user: req.user });
+});
+
+app.post('/api/process', requireAuth, async (req, res) => {
   try {
     const { message, context, lang } = req.body;
 
@@ -201,7 +236,7 @@ app.get('/api/templates/:id', (req, res) => {
 });
 
 // Improve code endpoint
-app.post('/api/improve-code', async (req, res) => {
+app.post('/api/improve-code', requireAuth, async (req, res) => {
   try {
     const { code, language, instructions, lang } = req.body;
     
@@ -270,7 +305,7 @@ IMPORTANT: Keep the code in ${detectedLanguage}, do NOT convert it to another la
   }
 });
 // POST /api/optimize — SSE streaming optimization pipeline
-app.post('/api/optimize', enhanceLimiter, dailyOptimizeLimit, async (req, res) => {
+app.post('/api/optimize', requireAuth, enhanceLimiter, dailyOptimizeLimit, async (req, res) => {
   const { prompt, intentHint, tipCount, lang } = req.body;
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
@@ -289,7 +324,7 @@ app.post('/api/optimize', enhanceLimiter, dailyOptimizeLimit, async (req, res) =
 });
 
 // POST /api/tips — tips-only (non-streaming JSON)
-app.post('/api/tips', apiLimiter, (req, res, next) => {
+app.post('/api/tips', requireAuth, apiLimiter, (req, res, next) => {
   try {
     const { prompt, intentHint, count, lang } = req.body;
 

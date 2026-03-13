@@ -157,6 +157,68 @@
     }
     .ico-btn:hover { background: var(--bg3); color: var(--text); }
 
+    /* ── Sidebar user ──────────────────────────────────────────────────────── */
+    .sb-user {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px; border-top: 1px solid var(--border);
+    }
+    .sb-user.hidden { display: none; }
+    .sb-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-bg); color: var(--accent-hi);
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sb-email {
+      flex: 1; font-size: 12px; color: var(--text2);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* ── Auth modal ────────────────────────────────────────────────────────── */
+    .auth-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .auth-overlay.hidden { display: none; }
+    .auth-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); box-shadow: var(--shadow);
+      width: 100%; max-width: 380px; padding: 32px;
+    }
+    .auth-logo { text-align: center; font-size: 28px; margin-bottom: 6px; }
+    .auth-title { text-align: center; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .auth-sub { text-align: center; font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .auth-tabs {
+      display: flex; gap: 3px; background: var(--bg3);
+      border-radius: var(--rs); padding: 3px; margin-bottom: 22px;
+    }
+    .auth-tab {
+      flex: 1; padding: 7px; border: none; background: transparent;
+      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
+      color: var(--text2); font-family: inherit; transition: background var(--t), color var(--t);
+    }
+    .auth-tab.active { background: var(--bg); color: var(--text); }
+    .auth-field { margin-bottom: 14px; }
+    .auth-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+    .auth-input {
+      width: 100%; padding: 10px 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--rs); color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color var(--t);
+    }
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-btn {
+      width: 100%; padding: 11px; margin-top: 6px;
+      background: var(--accent); border: none; border-radius: var(--rs);
+      color: #fff; font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: opacity var(--t);
+    }
+    .auth-btn:hover { opacity: 0.88; }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-err { font-size: 12px; color: #ef4444; margin-top: 10px; text-align: center; min-height: 16px; }
+
     /* ── Overlay ───────────────────────────────────────────────────────────── */
     .overlay {
       display: none; position: fixed; inset: 0;
@@ -556,6 +618,29 @@
 
   <div class="overlay" id="overlay"></div>
 
+  <!-- ── Auth modal ─────────────────────────────────────────────────────── -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-logo">✦</div>
+      <div class="auth-title">OptimizeMyPrompt AI</div>
+      <div class="auth-sub">Sign in to start optimizing your prompts</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin">Sign In</button>
+        <button class="auth-tab" id="tabRegister">Sign Up</button>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Email</label>
+        <input class="auth-input" type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input class="auth-input" type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" id="authSubmit">Sign In</button>
+      <div class="auth-err" id="authErr"></div>
+    </div>
+  </div>
+
   <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-head">
@@ -572,6 +657,16 @@
     <nav class="sb-list" id="sbList">
       <div class="sb-empty">No conversations yet</div>
     </nav>
+
+    <div class="sb-user hidden" id="sbUser">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <span class="sb-email" id="sbEmail"></span>
+      <button class="ico-btn" id="logoutBtn" title="Sign out">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </button>
+    </div>
 
     <div class="sb-foot">
       <button class="ico-btn" id="themeBtn" title="Toggle theme">
@@ -858,11 +953,38 @@
       theme:     localStorage.getItem('pc_theme') || 'dark',
       sidebar:   localStorage.getItem('pc_sidebar') !== 'false',
       lang:      localStorage.getItem('pc_lang') || 'en',
+      token:     localStorage.getItem('pc_token') || null,
+      user:      null,
       convos:    [],
       activeId:  null,
       generating: false,
       abort:     null,
     };
+
+    function authHeaders() {
+      return S.token ? { 'Authorization': `Bearer ${S.token}` } : {};
+    }
+
+    function showApp() {
+      document.getElementById('authOverlay').classList.add('hidden');
+      if (S.user) {
+        const sb = document.getElementById('sbUser');
+        sb.classList.remove('hidden');
+        document.getElementById('sbAvatar').textContent = S.user.email[0].toUpperCase();
+        document.getElementById('sbEmail').textContent = S.user.email;
+      }
+    }
+
+    function showAuth() {
+      document.getElementById('authOverlay').classList.remove('hidden');
+      document.getElementById('sbUser').classList.add('hidden');
+    }
+
+    function handleUnauth() {
+      S.token = null; S.user = null;
+      localStorage.removeItem('pc_token');
+      showAuth();
+    }
 
     // ── Boot ──────────────────────────────────────────────────────────────────
     (function boot() {
@@ -937,6 +1059,78 @@
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
+
+      // auth — verify stored token or show login modal
+      (async function initAuth() {
+        let mode = 'login';
+
+        function setMode(m) {
+          mode = m;
+          document.getElementById('tabLogin').classList.toggle('active', m === 'login');
+          document.getElementById('tabRegister').classList.toggle('active', m === 'register');
+          document.getElementById('authSubmit').textContent = m === 'login' ? 'Sign In' : 'Create Account';
+          document.getElementById('authPassword').autocomplete = m === 'login' ? 'current-password' : 'new-password';
+          document.getElementById('authErr').textContent = '';
+        }
+
+        document.getElementById('tabLogin').addEventListener('click', () => setMode('login'));
+        document.getElementById('tabRegister').addEventListener('click', () => setMode('register'));
+
+        document.getElementById('authSubmit').addEventListener('click', async () => {
+          const email    = document.getElementById('authEmail').value.trim();
+          const password = document.getElementById('authPassword').value;
+          const btn = document.getElementById('authSubmit');
+          const err = document.getElementById('authErr');
+          if (!email || !password) { err.textContent = 'Email and password are required'; return; }
+          btn.disabled = true; btn.textContent = '…'; err.textContent = '';
+          try {
+            const res = await fetch(mode === 'login' ? '/api/auth/login' : '/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Authentication failed');
+            S.token = data.token; S.user = data.user;
+            localStorage.setItem('pc_token', S.token);
+            showApp();
+          } catch (e) {
+            err.textContent = e.message;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+          }
+        });
+
+        ['authEmail', 'authPassword'].forEach(id =>
+          document.getElementById(id).addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('authSubmit').click();
+          })
+        );
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+          handleUnauth();
+          S.activeId = null;
+          document.getElementById('emptyState').classList.remove('hidden');
+          document.getElementById('msgs').classList.add('hidden');
+          document.getElementById('msgs').innerHTML = '';
+          document.getElementById('topTitle').textContent = 'OptimizeMyPrompt AI';
+          setMode('login');
+        });
+
+        // verify stored token
+        if (S.token) {
+          try {
+            const res = await fetch('/api/auth/me', { headers: authHeaders() });
+            if (res.ok) {
+              S.user = (await res.json()).user;
+              showApp();
+            } else {
+              handleUnauth();
+            }
+          } catch { handleUnauth(); }
+        }
+      })();
 
       window.addEventListener('resize', () => {
         if (window.innerWidth >= 769) document.getElementById('overlay').classList.remove('on');
@@ -1115,10 +1309,11 @@
       try {
         const res = await fetch('/api/optimize', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ prompt, tipCount: 4, lang: S.lang }),
           signal: S.abort.signal,
         });
+        if (res.status === 401) { handleUnauth(); return; }
         if (!res.ok) {
           const e = await res.json().catch(() => ({}));
           throw new Error(e.message || e.error || `Server error ${res.status}`);
@@ -1418,13 +1613,14 @@
       try {
         const res = await fetch('/api/process', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({
             message: 'Review this code for bugs, security issues, performance, and best practices.',
             context: { code, language: 'Auto-detect' },
           }),
           signal: S.abort.signal,
         });
+        if (res.status === 401) { handleUnauth(); return; }
         if (!res.ok) throw new Error(`Server error ${res.status}`);
         const data = await res.json();
         renderCodeReview(card, code, data);
@@ -1501,9 +1697,10 @@
       try {
         const res = await fetch('/api/improve-code', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ code, language: 'Auto-detect', instructions: 'Improve this code based on the review findings' }),
         });
+        if (res.status === 401) { handleUnauth(); return; }
         const data = await res.json();
         if (!data.success) throw new Error(data.error || 'Failed');
         btn.remove();

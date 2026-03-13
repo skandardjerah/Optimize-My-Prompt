@@ -25,7 +25,7 @@ function todayUTC() {
 }
 
 export function dailyOptimizeLimit(req, res, next) {
-  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const ip = req.user?.id || req.ip || req.socket.remoteAddress || 'unknown';
   const today = todayUTC();
   const entry = dailyUsage.get(ip);
 
