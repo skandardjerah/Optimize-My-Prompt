@@ -6,6 +6,7 @@
   <title>OptimizeMyPrompt AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
   <style>
     /* ── Reset ─────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -130,7 +131,16 @@
     .sb-item:hover { background: var(--bg3); color: var(--text); }
     .sb-item.active { background: var(--accent-bg); color: var(--accent-hi); }
     .sb-item svg { flex-shrink: 0; opacity: 0.5; }
-    .sb-item span { overflow: hidden; text-overflow: ellipsis; }
+    .sb-item span { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .sb-del {
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border: none; background: transparent;
+      border-radius: 4px; cursor: pointer; color: var(--text3);
+      opacity: 0; pointer-events: none; margin-left: auto;
+      transition: opacity var(--t), color var(--t), background var(--t);
+    }
+    .sb-item:hover .sb-del { opacity: 1; pointer-events: all; }
+    .sb-del:hover { color: #ef4444; background: rgba(239,68,68,0.12); }
 
     .sb-empty { padding: 10px 12px; font-size: 12px; color: var(--text3); }
 
@@ -504,6 +514,42 @@
     @media (min-width: 769px) {
       .sidebar { transform: none !important; }
     }
+
+    /* ── Language dropdown ──────────────────────────────────────────────────── */
+    .lang-drop { position: relative; }
+    .lang-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 32px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--rs); cursor: pointer; padding: 0;
+      transition: border-color var(--t);
+    }
+    .lang-btn:hover, .lang-btn:focus { border-color: var(--accent); outline: none; }
+    /* flag inside trigger */
+    .lang-btn .fi { width: 26px; height: 19px; border-radius: 2px; display: block; }
+
+    .lang-menu {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--r); box-shadow: var(--shadow);
+      list-style: none; padding: 5px; min-width: 110px;
+      z-index: 300; display: flex; flex-direction: column; gap: 2px;
+    }
+    .lang-menu.hidden { display: none; }
+    .lang-opt {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 8px 12px;
+      border: none; background: transparent; border-radius: var(--rs);
+      cursor: pointer; font-family: inherit; font-size: 13px;
+      font-weight: 500; color: var(--text2); white-space: nowrap;
+      transition: background var(--t), color var(--t);
+    }
+    .lang-opt:hover { background: var(--bg4); color: var(--text); }
+    .lang-opt.active { background: var(--accent-bg); color: var(--accent-hi); }
+    /* flag inside option rows */
+    .lang-opt .fi { width: 26px; height: 19px; border-radius: 2px; flex-shrink: 0; display: inline-block; }
+    /* English image flag */
+    .en-flag { width: 26px; height: 19px; border-radius: 2px; object-fit: cover; display: block; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -519,10 +565,10 @@
 
     <button class="new-btn" id="newBtn">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-      New conversation
+      <span data-i18n="newConvo">New conversation</span>
     </button>
 
-    <div class="sb-section">Recent</div>
+    <div class="sb-section" data-i18n="recent">Recent</div>
     <nav class="sb-list" id="sbList">
       <div class="sb-empty">No conversations yet</div>
     </nav>
@@ -546,6 +592,22 @@
         </svg>
       </button>
       <span class="topbar-title" id="topTitle">OptimizeMyPrompt AI</span>
+      <div class="lang-drop" id="langDrop">
+        <button class="lang-btn" id="langTrigger" title="Language">
+          <img src="/UK_US_flag.JPG" class="en-flag" alt="EN">
+        </button>
+        <ul class="lang-menu hidden" id="langMenu">
+          <li><button class="lang-opt" data-lang="en"><img src="/UK_US_flag.JPG" class="en-flag" alt="EN"><span>EN</span></button></li>
+          <li><button class="lang-opt" data-lang="fr"><span class="fi fi-fr"></span><span>FR</span></button></li>
+          <li><button class="lang-opt" data-lang="es"><span class="fi fi-es"></span><span>ES</span></button></li>
+          <li><button class="lang-opt" data-lang="it"><span class="fi fi-it"></span><span>IT</span></button></li>
+          <li><button class="lang-opt" data-lang="pt"><span class="fi fi-pt"></span><span>PT</span></button></li>
+          <li><button class="lang-opt" data-lang="de"><span class="fi fi-de"></span><span>DE</span></button></li>
+          <li><button class="lang-opt" data-lang="ar"><span class="fi fi-sa"></span><span>AR</span></button></li>
+          <li><button class="lang-opt" data-lang="zh"><span class="fi fi-cn"></span><span>ZH</span></button></li>
+          <li><button class="lang-opt" data-lang="ja"><span class="fi fi-jp"></span><span>JA</span></button></li>
+        </ul>
+      </div>
     </header>
 
     <main class="chat-area" id="chatArea">
@@ -553,19 +615,19 @@
       <div class="empty" id="emptyState">
         <div class="empty-icon">✦</div>
         <h1>OptimizeMyPrompt AI</h1>
-        <p>Transform any prompt instantly — real-time intent detection, expert improvement tips, and a live-streamed optimized result.</p>
+        <p data-i18n="tagline">Transform any prompt instantly — real-time intent detection, expert improvement tips, and a live-streamed optimized result.</p>
         <div class="chips">
-          <button class="chip" data-prompt="Write a Python function that reads a CSV file and returns summary statistics">
-            <strong>Data science</strong>Write a Python function for CSV summary stats
+          <button class="chip" data-chip="1" data-prompt="Write a Python function that reads a CSV file and returns summary statistics">
+            <strong data-i18n="chip1h">Data science</strong><span class="chip-desc" data-i18n="chip1b">Write a Python function for CSV summary stats</span>
           </button>
-          <button class="chip" data-prompt="Write a short story about a robot who learns to feel emotions">
-            <strong>Creative writing</strong>Short story about a robot learning emotions
+          <button class="chip" data-chip="2" data-prompt="Write a short story about a robot who learns to feel emotions">
+            <strong data-i18n="chip2h">Creative writing</strong><span class="chip-desc" data-i18n="chip2b">Short story about a robot learning emotions</span>
           </button>
-          <button class="chip" data-prompt="Explain how transformer neural networks work to a software engineer">
-            <strong>Technical explanation</strong>Explain transformer networks to a developer
+          <button class="chip" data-chip="3" data-prompt="Explain how transformer neural networks work to a software engineer">
+            <strong data-i18n="chip3h">Technical explanation</strong><span class="chip-desc" data-i18n="chip3b">Explain transformer networks to a developer</span>
           </button>
-          <button class="chip" data-prompt="Create a marketing email campaign for a new SaaS productivity tool targeting remote teams">
-            <strong>Marketing copy</strong>Email campaign for a SaaS productivity tool
+          <button class="chip" data-chip="4" data-prompt="Create a marketing email campaign for a new SaaS productivity tool targeting remote teams">
+            <strong data-i18n="chip4h">Marketing copy</strong><span class="chip-desc" data-i18n="chip4b">Email campaign for a SaaS productivity tool</span>
           </button>
         </div>
       </div>
@@ -578,6 +640,7 @@
       <div class="input-shell">
         <textarea class="prompt-ta" id="promptTa"
           placeholder="Enter any prompt to enhance…"
+          data-i18n-ph="placeholder"
           rows="1" maxlength="10000"></textarea>
         <div class="input-foot">
           <span class="char-cnt" id="charCnt">0 / 10,000</span>
@@ -588,11 +651,194 @@
           </button>
         </div>
       </div>
-      <p class="hint">Enter to send · Shift+Enter for new line</p>
+      <p class="hint" data-i18n="hint">Enter to send · Shift+Enter for new line</p>
     </footer>
   </div>
 
   <script>
+    // ── Translations ──────────────────────────────────────────────────────────
+    const TRANSLATIONS = {
+      en: {
+        newConvo:'New conversation', recent:'Recent', noConvos:'No conversations yet',
+        tagline:'Transform any prompt instantly — real-time intent detection, expert improvement tips, and a live-streamed optimized result.',
+        chip1h:'Data science',          chip1b:'Write a Python function for CSV summary stats',
+        chip2h:'Creative writing',      chip2b:'Short story about a robot learning emotions',
+        chip3h:'Technical explanation', chip3b:'Explain transformer networks to a developer',
+        chip4h:'Marketing copy',        chip4b:'Email campaign for a SaaS productivity tool',
+        placeholder:'Enter any prompt to enhance…',
+        hint:'Enter to send · Shift+Enter for new line',
+        classifying:'Classifying…', optimizing:'Optimizing…', reviewing:'Reviewing…', stopped:'Stopped',
+        tipsLabel:'💡 Improvement Tips', optimizedLabel:'✨ Optimized Prompt',
+        qualityLabel:'📊 Quality Score', changesLabel:'🔍 Changes', summaryLabel:'📋 Summary',
+        issuesLabel:'🔍 Issues Found', improvedLabel:'✨ Improved Code', changesListLabel:'📝 Changes Made',
+        origHdr:'− Original', optHdr:'+ Optimized',
+        copy:'Copy', generating:'Generating…', improveBtn:'🔧 Improve this code',
+        feedbackQ:'Was this helpful?', feedbackDone: r => `✓ Thanks! You rated this ${r}/5`,
+        intentNL:'Natural Language', intentCode:'Code', codeReview:'Code Review',
+        qLength:'Length', qSpec:'Specificity', qStruct:'Structure', qClarity:'Clarity',
+      },
+      fr: {
+        newConvo:'Nouvelle conversation', recent:'Récent', noConvos:'Aucune conversation',
+        tagline:'Transformez n\'importe quel prompt instantanément — détection d\'intention en temps réel, conseils d\'amélioration experts et résultat optimisé en direct.',
+        chip1h:'Science des données',    chip1b:'Fonction Python pour les stats résumées d\'un CSV',
+        chip2h:'Écriture créative',      chip2b:'Courte histoire sur un robot qui apprend à ressentir',
+        chip3h:'Explication technique',  chip3b:'Expliquer les réseaux transformer à un développeur',
+        chip4h:'Texte marketing',        chip4b:'Campagne e-mail pour un outil SaaS de productivité',
+        placeholder:'Entrez un prompt à améliorer…',
+        hint:'Entrée pour envoyer · Maj+Entrée pour nouvelle ligne',
+        classifying:'Classification…', optimizing:'Optimisation…', reviewing:'Révision…', stopped:'Arrêté',
+        tipsLabel:'💡 Conseils d\'amélioration', optimizedLabel:'✨ Prompt optimisé',
+        qualityLabel:'📊 Score de qualité', changesLabel:'🔍 Modifications', summaryLabel:'📋 Résumé',
+        issuesLabel:'🔍 Problèmes détectés', improvedLabel:'✨ Code amélioré', changesListLabel:'📝 Modifications apportées',
+        origHdr:'− Original', optHdr:'+ Optimisé',
+        copy:'Copier', generating:'Génération…', improveBtn:'🔧 Améliorer ce code',
+        feedbackQ:'Était-ce utile ?', feedbackDone: r => `✓ Merci ! Vous avez noté ${r}/5`,
+        intentNL:'Langage naturel', intentCode:'Code', codeReview:'Revue de code',
+        qLength:'Longueur', qSpec:'Spécificité', qStruct:'Structure', qClarity:'Clarté',
+      },
+      es: {
+        newConvo:'Nueva conversación', recent:'Reciente', noConvos:'Sin conversaciones',
+        tagline:'Transforma cualquier prompt al instante — detección de intención en tiempo real, consejos de mejora expertos y resultado optimizado en vivo.',
+        chip1h:'Ciencia de datos',       chip1b:'Función Python para estadísticas de un CSV',
+        chip2h:'Escritura creativa',     chip2b:'Cuento sobre un robot que aprende emociones',
+        chip3h:'Explicación técnica',    chip3b:'Explicar redes transformer a un desarrollador',
+        chip4h:'Texto de marketing',     chip4b:'Campaña de email para una herramienta SaaS',
+        placeholder:'Ingresa un prompt para mejorar…',
+        hint:'Enter para enviar · Mayús+Enter para nueva línea',
+        classifying:'Clasificando…', optimizing:'Optimizando…', reviewing:'Revisando…', stopped:'Detenido',
+        tipsLabel:'💡 Consejos de mejora', optimizedLabel:'✨ Prompt optimizado',
+        qualityLabel:'📊 Puntuación de calidad', changesLabel:'🔍 Cambios', summaryLabel:'📋 Resumen',
+        issuesLabel:'🔍 Problemas encontrados', improvedLabel:'✨ Código mejorado', changesListLabel:'📝 Cambios realizados',
+        origHdr:'− Original', optHdr:'+ Optimizado',
+        copy:'Copiar', generating:'Generando…', improveBtn:'🔧 Mejorar este código',
+        feedbackQ:'¿Fue útil?', feedbackDone: r => `✓ ¡Gracias! Calificaste esto ${r}/5`,
+        intentNL:'Lenguaje natural', intentCode:'Código', codeReview:'Revisión de código',
+        qLength:'Longitud', qSpec:'Especificidad', qStruct:'Estructura', qClarity:'Claridad',
+      },
+      it: {
+        newConvo:'Nuova conversazione', recent:'Recente', noConvos:'Nessuna conversazione',
+        tagline:'Trasforma qualsiasi prompt all\'istante — rilevamento dell\'intento in tempo reale, suggerimenti di miglioramento esperti e risultato ottimizzato in diretta.',
+        chip1h:'Data science',           chip1b:'Funzione Python per statistiche riassuntive di un CSV',
+        chip2h:'Scrittura creativa',     chip2b:'Breve storia su un robot che impara le emozioni',
+        chip3h:'Spiegazione tecnica',    chip3b:'Spiegare le reti transformer a uno sviluppatore',
+        chip4h:'Testo marketing',        chip4b:'Campagna email per uno strumento SaaS di produttività',
+        placeholder:'Inserisci un prompt da migliorare…',
+        hint:'Invio per inviare · Maiusc+Invio per nuova riga',
+        classifying:'Classificazione…', optimizing:'Ottimizzazione…', reviewing:'Revisione…', stopped:'Fermato',
+        tipsLabel:'💡 Suggerimenti di miglioramento', optimizedLabel:'✨ Prompt ottimizzato',
+        qualityLabel:'📊 Punteggio qualità', changesLabel:'🔍 Modifiche', summaryLabel:'📋 Riepilogo',
+        issuesLabel:'🔍 Problemi rilevati', improvedLabel:'✨ Codice migliorato', changesListLabel:'📝 Modifiche apportate',
+        origHdr:'− Originale', optHdr:'+ Ottimizzato',
+        copy:'Copia', generating:'Generazione…', improveBtn:'🔧 Migliora questo codice',
+        feedbackQ:'È stato utile?', feedbackDone: r => `✓ Grazie! Hai valutato questo ${r}/5`,
+        intentNL:'Linguaggio naturale', intentCode:'Codice', codeReview:'Revisione codice',
+        qLength:'Lunghezza', qSpec:'Specificità', qStruct:'Struttura', qClarity:'Chiarezza',
+      },
+      pt: {
+        newConvo:'Nova conversa', recent:'Recente', noConvos:'Nenhuma conversa',
+        tagline:'Transforme qualquer prompt instantaneamente — detecção de intenção em tempo real, dicas de melhoria especializadas e resultado otimizado ao vivo.',
+        chip1h:'Ciência de dados',       chip1b:'Função Python para estatísticas resumidas de CSV',
+        chip2h:'Escrita criativa',       chip2b:'Conto curto sobre um robô que aprende emoções',
+        chip3h:'Explicação técnica',     chip3b:'Explicar redes transformer a um desenvolvedor',
+        chip4h:'Texto de marketing',     chip4b:'Campanha de email para ferramenta SaaS de produtividade',
+        placeholder:'Digite um prompt para aprimorar…',
+        hint:'Enter para enviar · Shift+Enter para nova linha',
+        classifying:'Classificando…', optimizing:'Otimizando…', reviewing:'Revisando…', stopped:'Parado',
+        tipsLabel:'💡 Dicas de melhoria', optimizedLabel:'✨ Prompt otimizado',
+        qualityLabel:'📊 Pontuação de qualidade', changesLabel:'🔍 Alterações', summaryLabel:'📋 Resumo',
+        issuesLabel:'🔍 Problemas encontrados', improvedLabel:'✨ Código melhorado', changesListLabel:'📝 Alterações feitas',
+        origHdr:'− Original', optHdr:'+ Otimizado',
+        copy:'Copiar', generating:'Gerando…', improveBtn:'🔧 Melhorar este código',
+        feedbackQ:'Foi útil?', feedbackDone: r => `✓ Obrigado! Você avaliou com ${r}/5`,
+        intentNL:'Linguagem natural', intentCode:'Código', codeReview:'Revisão de código',
+        qLength:'Comprimento', qSpec:'Especificidade', qStruct:'Estrutura', qClarity:'Clareza',
+      },
+      de: {
+        newConvo:'Neues Gespräch', recent:'Zuletzt', noConvos:'Noch keine Gespräche',
+        tagline:'Verbessere jeden Prompt sofort — Echtzeit-Absichtserkennung, Expertentipps und ein live gestreamtes optimiertes Ergebnis.',
+        chip1h:'Datenwissenschaft',      chip1b:'Python-Funktion für CSV-Zusammenfassungsstatistiken',
+        chip2h:'Kreatives Schreiben',    chip2b:'Kurzgeschichte über einen Roboter, der Gefühle lernt',
+        chip3h:'Technische Erklärung',   chip3b:'Transformer-Netze für einen Entwickler erklären',
+        chip4h:'Marketingtext',          chip4b:'E-Mail-Kampagne für ein SaaS-Produktivitätstool',
+        placeholder:'Prompt zum Verbessern eingeben…',
+        hint:'Enter zum Senden · Umschalt+Enter für neue Zeile',
+        classifying:'Klassifizierung…', optimizing:'Optimierung…', reviewing:'Überprüfung…', stopped:'Gestoppt',
+        tipsLabel:'💡 Verbesserungstipps', optimizedLabel:'✨ Optimierter Prompt',
+        qualityLabel:'📊 Qualitätsbewertung', changesLabel:'🔍 Änderungen', summaryLabel:'📋 Zusammenfassung',
+        issuesLabel:'🔍 Gefundene Probleme', improvedLabel:'✨ Verbesserter Code', changesListLabel:'📝 Vorgenommene Änderungen',
+        origHdr:'− Original', optHdr:'+ Optimiert',
+        copy:'Kopieren', generating:'Generierung…', improveBtn:'🔧 Diesen Code verbessern',
+        feedbackQ:'War das hilfreich?', feedbackDone: r => `✓ Danke! Bewertung: ${r}/5`,
+        intentNL:'Natürliche Sprache', intentCode:'Code', codeReview:'Code-Überprüfung',
+        qLength:'Länge', qSpec:'Spezifität', qStruct:'Struktur', qClarity:'Klarheit',
+      },
+      ar: {
+        newConvo:'محادثة جديدة', recent:'الأخيرة', noConvos:'لا توجد محادثات بعد',
+        tagline:'حوّل أي موجّه فوراً — كشف النية في الوقت الفعلي، نصائح تحسين من الخبراء، ونتيجة محسّنة مباشرة.',
+        chip1h:'علوم البيانات',           chip1b:'دالة Python لإحصائيات ملف CSV',
+        chip2h:'الكتابة الإبداعية',       chip2b:'قصة قصيرة عن روبوت يتعلم المشاعر',
+        chip3h:'شرح تقني',               chip3b:'شرح شبكات المحوّل لمطوّر برمجيات',
+        chip4h:'نص تسويقي',             chip4b:'حملة بريد إلكتروني لأداة SaaS للإنتاجية',
+        placeholder:'أدخل أي موجّه لتحسينه…',
+        hint:'Enter للإرسال · Shift+Enter لسطر جديد',
+        classifying:'جارٍ التصنيف…', optimizing:'جارٍ التحسين…', reviewing:'جارٍ المراجعة…', stopped:'توقف',
+        tipsLabel:'💡 نصائح التحسين', optimizedLabel:'✨ الموجّه المحسَّن',
+        qualityLabel:'📊 درجة الجودة', changesLabel:'🔍 التغييرات', summaryLabel:'📋 الملخص',
+        issuesLabel:'🔍 المشكلات المكتشفة', improvedLabel:'✨ الكود المحسَّن', changesListLabel:'📝 التغييرات المُجراة',
+        origHdr:'− الأصلي', optHdr:'+ المحسَّن',
+        copy:'نسخ', generating:'جارٍ التوليد…', improveBtn:'🔧 تحسين هذا الكود',
+        feedbackQ:'هل كان مفيداً؟', feedbackDone: r => `✓ شكراً! قيّمت هذا بـ ${r}/5`,
+        intentNL:'لغة طبيعية', intentCode:'كود', codeReview:'مراجعة الكود',
+        qLength:'الطول', qSpec:'التحديد', qStruct:'البنية', qClarity:'الوضوح',
+      },
+      zh: {
+        newConvo:'新对话', recent:'最近', noConvos:'暂无对话',
+        tagline:'即时优化任何提示词 — 实时意图识别、专业改进建议和流式输出优化结果。',
+        chip1h:'数据科学',               chip1b:'编写读取CSV并返回统计摘要的Python函数',
+        chip2h:'创意写作',               chip2b:'写一个关于机器人学会感受情感的短故事',
+        chip3h:'技术解释',               chip3b:'向开发者解释Transformer神经网络原理',
+        chip4h:'营销文案',               chip4b:'为远程团队的SaaS生产力工具撰写邮件营销方案',
+        placeholder:'输入要优化的提示词…',
+        hint:'Enter 发送 · Shift+Enter 换行',
+        classifying:'分类中…', optimizing:'优化中…', reviewing:'审查中…', stopped:'已停止',
+        tipsLabel:'💡 改进建议', optimizedLabel:'✨ 优化后的提示词',
+        qualityLabel:'📊 质量评分', changesLabel:'🔍 变更对比', summaryLabel:'📋 摘要',
+        issuesLabel:'🔍 发现的问题', improvedLabel:'✨ 改进后的代码', changesListLabel:'📝 修改内容',
+        origHdr:'− 原始', optHdr:'+ 优化',
+        copy:'复制', generating:'生成中…', improveBtn:'🔧 改进此代码',
+        feedbackQ:'这对您有帮助吗？', feedbackDone: r => `✓ 感谢！您的评分是 ${r}/5`,
+        intentNL:'自然语言', intentCode:'代码', codeReview:'代码审查',
+        qLength:'长度', qSpec:'具体性', qStruct:'结构', qClarity:'清晰度',
+      },
+      ja: {
+        newConvo:'新しい会話', recent:'最近', noConvos:'まだ会話がありません',
+        tagline:'どんなプロンプトも即座に最適化 — リアルタイムの意図検出、専門家の改善ヒント、ライブストリーミングによる最適化結果。',
+        chip1h:'データサイエンス',         chip1b:'CSVファイルを読み込み統計サマリーを返すPython関数',
+        chip2h:'クリエイティブライティング', chip2b:'感情を学ぶロボットの短編小説',
+        chip3h:'技術的な説明',            chip3b:'トランスフォーマーネットワークを開発者に説明',
+        chip4h:'マーケティングコピー',     chip4b:'リモートチーム向けSaaS生産性ツールのメールキャンペーン',
+        placeholder:'最適化したいプロンプトを入力…',
+        hint:'Enterで送信 · Shift+Enterで改行',
+        classifying:'分類中…', optimizing:'最適化中…', reviewing:'レビュー中…', stopped:'停止しました',
+        tipsLabel:'💡 改善ヒント', optimizedLabel:'✨ 最適化されたプロンプト',
+        qualityLabel:'📊 品質スコア', changesLabel:'🔍 変更点', summaryLabel:'📋 サマリー',
+        issuesLabel:'🔍 検出された問題', improvedLabel:'✨ 改善されたコード', changesListLabel:'📝 変更内容',
+        origHdr:'− 元のプロンプト', optHdr:'+ 最適化後',
+        copy:'コピー', generating:'生成中…', improveBtn:'🔧 このコードを改善',
+        feedbackQ:'役に立ちましたか？', feedbackDone: r => `✓ ありがとうございます！評価：${r}/5`,
+        intentNL:'自然言語', intentCode:'コード', codeReview:'コードレビュー',
+        qLength:'長さ', qSpec:'具体性', qStruct:'構造', qClarity:'明確さ',
+      },
+    };
+
+    function t(key) { return (TRANSLATIONS[S.lang] || TRANSLATIONS.en)[key] ?? TRANSLATIONS.en[key] ?? key; }
+
+    function applyI18n() {
+      document.documentElement.dir = S.lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+    }
+
     // ── Icons ─────────────────────────────────────────────────────────────────
     const SVG = {
       moon:    '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
@@ -601,6 +847,7 @@
       stop:    '<rect x="4" y="4" width="16" height="16" rx="2"/>',
       copy:    '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>',
       chat:    '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+      trash:   '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>',
     };
     function svgIcon(key, size = 14) {
       return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SVG[key]}</svg>`;
@@ -610,6 +857,7 @@
     const S = {
       theme:     localStorage.getItem('pc_theme') || 'dark',
       sidebar:   localStorage.getItem('pc_sidebar') !== 'false',
+      lang:      localStorage.getItem('pc_lang') || 'en',
       convos:    [],
       activeId:  null,
       generating: false,
@@ -619,6 +867,7 @@
     // ── Boot ──────────────────────────────────────────────────────────────────
     (function boot() {
       applyTheme();
+      applyI18n();
       loadConvos();
       renderSidebar();
       applySidebarState();
@@ -629,6 +878,42 @@
       ta.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
       });
+
+      // language dropdown
+      (function initLang() {
+        const FLAG_HTML = {
+          en: '<img src="/UK_US_flag.JPG" class="en-flag" alt="EN">',
+          fr: '<span class="fi fi-fr"></span>',
+          es: '<span class="fi fi-es"></span>',
+          it: '<span class="fi fi-it"></span>',
+          pt: '<span class="fi fi-pt"></span>',
+          de: '<span class="fi fi-de"></span>',
+          ar: '<span class="fi fi-sa"></span>',
+          zh: '<span class="fi fi-cn"></span>',
+          ja: '<span class="fi fi-jp"></span>',
+        };
+        const trigger = document.getElementById('langTrigger');
+        const menu    = document.getElementById('langMenu');
+
+        function setLang(lang) {
+          S.lang = lang;
+          localStorage.setItem('pc_lang', lang);
+          trigger.innerHTML = FLAG_HTML[lang] || FLAG_HTML.en;
+          menu.querySelectorAll('.lang-opt').forEach(b =>
+            b.classList.toggle('active', b.dataset.lang === lang));
+          applyI18n();
+        }
+
+        trigger.addEventListener('click', e => {
+          e.stopPropagation();
+          menu.classList.toggle('hidden');
+        });
+        menu.querySelectorAll('.lang-opt').forEach(btn =>
+          btn.addEventListener('click', () => { setLang(btn.dataset.lang); menu.classList.add('hidden'); }));
+        document.addEventListener('click', () => menu.classList.add('hidden'));
+
+        setLang(S.lang);
+      })();
 
       // buttons
       document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
@@ -703,17 +988,34 @@
     function renderSidebar() {
       const list = document.getElementById('sbList');
       if (!S.convos.length) {
-        list.innerHTML = '<div class="sb-empty">No conversations yet</div>';
+        list.innerHTML = `<div class="sb-empty">${t('noConvos')}</div>`;
         return;
       }
       list.innerHTML = S.convos.slice().reverse().map(c => `
         <div class="sb-item ${c.id === S.activeId ? 'active' : ''}" data-id="${c.id}">
           ${svgIcon('chat', 13)}
           <span title="${esc(c.title)}">${esc(c.title)}</span>
+          <button class="sb-del" data-del="${c.id}" title="Delete">${svgIcon('trash', 13)}</button>
         </div>`).join('');
       list.querySelectorAll('.sb-item').forEach(el => {
         el.addEventListener('click', () => loadConvo(el.dataset.id));
       });
+      list.querySelectorAll('.sb-del').forEach(btn => {
+        btn.addEventListener('click', e => { e.stopPropagation(); delChat(btn.dataset.del); });
+      });
+    }
+
+    function delChat(id) {
+      S.convos = S.convos.filter(c => c.id !== id);
+      saveConvos();
+      if (S.activeId === id) {
+        S.activeId = null;
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('msgs').classList.add('hidden');
+        document.getElementById('msgs').innerHTML = '';
+        document.getElementById('topTitle').textContent = 'OptimizeMyPrompt AI';
+      }
+      renderSidebar();
     }
 
     function newConvo() {
@@ -814,7 +1116,7 @@
         const res = await fetch('/api/optimize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, tipCount: 4 }),
+          body: JSON.stringify({ prompt, tipCount: 4, lang: S.lang }),
           signal: S.abort.signal,
         });
         if (!res.ok) {
@@ -864,14 +1166,14 @@
       card.querySelector('.dots').classList.add('hidden');
       const slot = card.querySelector('[data-slot="intent"]');
       slot.classList.remove('hidden');
-      const label = { NATURAL_LANGUAGE: 'Natural Language', HYBRID: 'Hybrid', CODE: 'Code' }[intent] || intent;
+      const label = intent === 'CODE' ? t('intentCode') : t('intentNL');
       const sub = subtype?.code || subtype?.nl;
       slot.innerHTML = `
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span class="ibadge ${intent}"><span class="idot"></span>${label}</span>
           <span class="iconf">${Math.round(confidence * 100)}% confidence${sub ? ` · ${sub}` : ''}</span>
         </div>`;
-      card.querySelector('[data-slot="status"]').textContent = 'Optimizing…';
+      card.querySelector('[data-slot="status"]').textContent = t('optimizing');
       card.querySelector('[data-slot="preview"]').classList.remove('hidden');
     }
 
@@ -898,8 +1200,8 @@
     function onQuality(card, { score, label, breakdown }) {
       const sec = card.querySelector('[data-slot="quality"]');
       sec.classList.remove('hidden');
-      const bars = [['Length', breakdown.lengthScore, 25], ['Specificity', breakdown.specificityScore, 25],
-                    ['Structure', breakdown.structureScore, 25], ['Clarity', breakdown.clarityScore, 25]];
+      const bars = [[t('qLength'), breakdown.lengthScore, 25], [t('qSpec'), breakdown.specificityScore, 25],
+                    [t('qStruct'), breakdown.structureScore, 25], [t('qClarity'), breakdown.clarityScore, 25]];
       const color = score >= 85 ? '#4ade80' : score >= 70 ? '#60a5fa' : '#fb923c';
       sec.querySelector('[data-q]').innerHTML = `
         <div class="q-row">
@@ -928,7 +1230,7 @@
       acts.classList.remove('hidden');
       const copyBtn = document.createElement('button');
       copyBtn.className = 'btn btn-ghost';
-      copyBtn.innerHTML = `${svgIcon('copy', 13)} Copy`;
+      copyBtn.innerHTML = `${svgIcon('copy', 13)} ${t('copy')}`;
       copyBtn.addEventListener('click', () => copyText(copyBtn, optimized));
       acts.appendChild(copyBtn);
 
@@ -938,11 +1240,11 @@
       diffSec.querySelector('[data-diff]').innerHTML = `
         <div class="diff-grid">
           <div class="dp orig">
-            <div class="dp-hdr">− Original</div>
+            <div class="dp-hdr">${t('origHdr')}</div>
             <div class="dp-body">${esc(original)}</div>
           </div>
           <div class="dp opt">
-            <div class="dp-hdr">+ Optimized</div>
+            <div class="dp-hdr">${t('optHdr')}</div>
             <div class="dp-body">${esc(optimized)}</div>
           </div>
         </div>`;
@@ -966,7 +1268,7 @@
     function onStopped(card) {
       card.querySelector('.cursor')?.remove();
       card.querySelector('.dots').classList.add('hidden');
-      card.querySelector('[data-slot="status"]').textContent = 'Stopped';
+      card.querySelector('[data-slot="status"]').textContent = t('stopped');
     }
 
     // ── Card constructors ─────────────────────────────────────────────────────
@@ -987,30 +1289,30 @@
         <div class="ai-card-head">
           <div class="ai-avatar">✦</div>
           <span class="ai-name">OptimizeMyPrompt</span>
-          <span class="ai-status" data-slot="status">Classifying…</span>
+          <span class="ai-status" data-slot="status">${t('classifying')}</span>
         </div>
         <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 
         <div class="sec hidden" data-slot="intent"></div>
 
         <div class="sec hidden" data-slot="tips">
-          <div class="sec-label">💡 Improvement Tips</div>
+          <div class="sec-label">${t('tipsLabel')}</div>
           <div class="tips"></div>
         </div>
 
         <div class="sec hidden" data-slot="preview">
-          <div class="sec-label">✨ Optimized Prompt</div>
+          <div class="sec-label">${t('optimizedLabel')}</div>
           <div class="preview"><span class="cursor"></span></div>
           <div class="preview-actions hidden"></div>
         </div>
 
         <div class="sec hidden" data-slot="quality">
-          <div class="sec-label">📊 Quality Score</div>
+          <div class="sec-label">${t('qualityLabel')}</div>
           <div data-q></div>
         </div>
 
         <div class="sec hidden" data-slot="diff">
-          <div class="sec-label">🔍 Changes</div>
+          <div class="sec-label">${t('changesLabel')}</div>
           <div data-diff></div>
         </div>
 
@@ -1021,7 +1323,7 @@
     function makeHistoryCard(msg) {
       const card = document.createElement('div');
       card.className = 'ai-card';
-      const label = { NATURAL_LANGUAGE: 'Natural Language', HYBRID: 'Hybrid', CODE: 'Code' }[msg.intent] || '';
+      const label = msg.intent === 'CODE' ? t('intentCode') : msg.intent ? t('intentNL') : '';
       const sub = msg.subtype?.code || msg.subtype?.nl;
       const conf = msg.confidence ? Math.round(msg.confidence * 100) : null;
       card.innerHTML = `
@@ -1036,17 +1338,17 @@
           </div>
         </div>` : ''}
         ${msg.optimized ? `<div class="sec">
-          <div class="sec-label">✨ Optimized Prompt</div>
+          <div class="sec-label">${t('optimizedLabel')}</div>
           <div class="preview">${esc(msg.optimized)}</div>
           <div class="preview-actions" style="margin-top:10px;">
-            <button class="btn btn-ghost" data-copy="${esc(msg.optimized)}">${svgIcon('copy', 13)} Copy</button>
+            <button class="btn btn-ghost" data-copy="${esc(msg.optimized)}">${svgIcon('copy', 13)} ${t('copy')}</button>
           </div>
         </div>` : ''}
         ${msg.original && msg.optimized ? `<div class="sec">
-          <div class="sec-label">🔍 Changes</div>
+          <div class="sec-label">${t('changesLabel')}</div>
           <div class="diff-grid">
-            <div class="dp orig"><div class="dp-hdr">− Original</div><div class="dp-body">${esc(msg.original)}</div></div>
-            <div class="dp opt"><div class="dp-hdr">+ Optimized</div><div class="dp-body">${esc(msg.optimized)}</div></div>
+            <div class="dp orig"><div class="dp-hdr">${t('origHdr')}</div><div class="dp-body">${esc(msg.original)}</div></div>
+            <div class="dp opt"><div class="dp-hdr">${t('optHdr')}</div><div class="dp-body">${esc(msg.optimized)}</div></div>
           </div>
         </div>` : ''}`;
       // wire copy buttons
@@ -1060,7 +1362,7 @@
     function renderFeedback(container) {
       container.innerHTML = `
         <div class="fb-row">
-          <span class="fb-lbl">Was this helpful?</span>
+          <span class="fb-lbl">${t('feedbackQ')}</span>
           <div class="stars">
             ${[1,2,3,4,5].map(n => `<span class="star" data-v="${n}">★</span>`).join('')}
           </div>
@@ -1080,7 +1382,7 @@
               body: JSON.stringify({ rating }),
             });
           } catch {}
-          container.innerHTML = `<div class="fb-row"><span class="fb-done">✓ Thanks! You rated this ${rating}/5</span></div>`;
+          container.innerHTML = `<div class="fb-row"><span class="fb-done">${t('feedbackDone')(rating)}</span></div>`;
         });
       });
     }
@@ -1112,7 +1414,7 @@
 
     // ── Code review (raw code path) ───────────────────────────────────────────
     async function runCodeReview(code, card, convo) {
-      card.querySelector('[data-slot="status"]').textContent = 'Reviewing…';
+      card.querySelector('[data-slot="status"]').textContent = t('reviewing');
       try {
         const res = await fetch('/api/process', {
           method: 'POST',
@@ -1149,14 +1451,14 @@
       const lang = result.language || '';
       sec.innerHTML = `
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-          <span class="ibadge CODE"><span class="idot"></span>Code Review</span>
+          <span class="ibadge CODE"><span class="idot"></span>${t('codeReview')}</span>
           ${lang ? `<span class="iconf">${esc(lang)}</span>` : ''}
         </div>`;
 
       // Summary
       if (result.summary) {
         const s = document.createElement('div');
-        s.innerHTML = `<div class="sec-label">📋 Summary</div>
+        s.innerHTML = `<div class="sec-label">${t('summaryLabel')}</div>
           <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">${esc(result.summary)}</p>`;
         sec.appendChild(s);
       }
@@ -1164,7 +1466,7 @@
       // Issues
       if (result.issues?.length) {
         const d = document.createElement('div');
-        d.innerHTML = `<div class="sec-label">🔍 Issues Found</div>`;
+        d.innerHTML = `<div class="sec-label">${t('issuesLabel')}</div>`;
         const list = document.createElement('div');
         list.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-bottom:14px;';
         result.issues.forEach(issue => {
@@ -1184,7 +1486,7 @@
       // Improve button
       const improveBtn = document.createElement('button');
       improveBtn.className = 'btn btn-ghost';
-      improveBtn.textContent = '🔧 Improve this code';
+      improveBtn.textContent = t('improveBtn');
       improveBtn.addEventListener('click', () => runImproveCode(card, code, improveBtn));
       sec.appendChild(improveBtn);
 
@@ -1195,7 +1497,7 @@
     async function runImproveCode(card, code, btn) {
       const orig = btn.textContent;
       btn.disabled = true;
-      btn.textContent = 'Generating…';
+      btn.textContent = t('generating');
       try {
         const res = await fetch('/api/improve-code', {
           method: 'POST',
@@ -1209,13 +1511,13 @@
         const sec = document.createElement('div');
         sec.className = 'sec';
         sec.innerHTML = `
-          <div class="sec-label">✨ Improved Code</div>
+          <div class="sec-label">${t('improvedLabel')}</div>
           <div class="preview">${esc(data.improvedCode)}</div>
           <div class="preview-actions" style="margin-top:10px;">
-            <button class="btn btn-ghost" id="copyImproved">${svgIcon('copy', 13)} Copy</button>
+            <button class="btn btn-ghost" id="copyImproved">${svgIcon('copy', 13)} ${t('copy')}</button>
           </div>
           ${data.changes?.length ? `
-            <div class="sec-label" style="margin-top:14px;">📝 Changes Made</div>
+            <div class="sec-label" style="margin-top:14px;">${t('changesListLabel')}</div>
             <ul style="padding-left:18px;font-size:13px;color:var(--text2);line-height:1.8;">
               ${data.changes.map(c => `<li>${esc(c)}</li>`).join('')}
             </ul>` : ''}`;

@@ -17,11 +17,31 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+// Trust Railway's reverse proxy so req.ip reflects the real client IP
+app.set('trust proxy', 1);
+
+// CORS — restrict to your domain via ALLOWED_ORIGIN env var
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN
+    ? process.env.ALLOWED_ORIGIN.split(',').map(o => o.trim())
+    : 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  credentials: false,
+}));
+
 app.use(express.json());
 app.use(express.static('public'));
 app.use(helmet());
 app.use('/api/', apiLimiter);
+
+// Guard for internal endpoints — requires X-Admin-Secret header
+function adminOnly(req, res, next) {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret || req.headers['x-admin-secret'] !== secret) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}
 
 const agent = new PromptEngineerAgent({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -57,17 +77,13 @@ app.post('/api/process', async (req, res) => {
     const { message, context, lang } = req.body;
 
     if (!message) {
-      return res.status(400).json({
-        error: 'Message is required'
-      });
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    if (typeof message !== 'string' || message.length > 10000) {
+      return res.status(400).json({ error: 'Message must be a string of 10,000 characters or fewer' });
     }
 
-    console.log('📨 Received request:', { message, context }); // DEBUG
-
     const result = await agent.processRequest(message, { ...(context || {}), lang: lang || 'en' });
-    
-    console.log('✅ Detected intent:', result.intent); // DEBUG
-    
     res.json(result);
     
   } catch (error) {
@@ -101,7 +117,7 @@ app.get('/api/info', (req, res) => {
 });
 
 // Get conversation history
-app.get('/api/conversation/:id', (req, res) => {
+app.get('/api/conversation/:id', adminOnly, (req, res) => {
   try {
     const conversationId = req.params.id;
     const conversation = agent.conversationStore.getConversation(conversationId);
@@ -124,28 +140,28 @@ app.get('/api/conversation/:id', (req, res) => {
 });
 
 // Get conversation statistics
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', adminOnly, (req, res) => {
   const stats = agent.conversationStore.getStats();
   res.json(stats);
 });
 
 // Clear old conversations
-app.post('/api/cleanup', (req, res) => {
+app.post('/api/cleanup', adminOnly, (req, res) => {
   const maxAgeHours = req.body.maxAgeHours || 24;
   agent.conversationStore.cleanup(maxAgeHours);
   res.json({ success: true, message: 'Cleanup completed' });
 });
 
 // Analytics endpoints
-app.get('/api/analytics', (req, res) => {
+app.get('/api/analytics', adminOnly, (req, res) => {
   res.json(agent.analytics.getMetrics());
 });
 
-app.get('/api/analytics/summary', (req, res) => {
+app.get('/api/analytics/summary', adminOnly, (req, res) => {
   res.json(agent.analytics.getSummary());
 });
 
-app.get('/api/logs', (req, res) => {
+app.get('/api/logs', adminOnly, (req, res) => {
   const lines = parseInt(req.query.lines) || 50;
   res.json(agent.logger.getRecentLogs(lines));
 });

@@ -9,7 +9,7 @@
  * To update the cache, bump CACHE_NAME (e.g. promptcraft-v2).
  */
 
-const CACHE_NAME = 'promptcraft-v1';
+const CACHE_NAME = 'OptimizeMyPromptAI-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -42,7 +42,7 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// ── Fetch: cache-first for static, network-only for API ───────────────────────
+// ── Fetch ─────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
@@ -50,26 +50,36 @@ self.addEventListener('fetch', event => {
   // Never intercept: non-GET requests or /api/* (must always hit live server)
   if (request.method !== 'GET' || url.pathname.startsWith('/api/')) return;
 
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(request)
+  // Network-first for HTML / navigation — always fetch the latest index.html.
+  // Falls back to cache only when offline.
+  if (request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(request)
         .then(response => {
-          // Only cache same-origin successful responses
           if (response.ok && url.origin === self.location.origin) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
           return response;
         })
-        .catch(() => {
-          // Offline fallback: return cached index.html for navigation requests
-          if (request.mode === 'navigate') {
-            return caches.match('/index.html');
+        .catch(() => caches.match(request).then(c => c || caches.match('/index.html')))
+    );
+    return;
+  }
+
+  // Cache-first for everything else (images, fonts, etc.)
+  event.respondWith(
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+      return fetch(request)
+        .then(response => {
+          if (response.ok && url.origin === self.location.origin) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
-          // For other assets (images etc.) just fail silently
-        });
+          return response;
+        })
+        .catch(() => {});
     })
   );
 });
