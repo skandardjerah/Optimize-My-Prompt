@@ -23,5 +23,3 @@ test-*.js
 dist/
 build/
 out/
-# Other
-package-lock.json
