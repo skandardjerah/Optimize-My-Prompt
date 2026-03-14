@@ -218,6 +218,7 @@
     .auth-btn:hover { opacity: 0.88; }
     .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .auth-err { font-size: 12px; color: #ef4444; margin-top: 10px; text-align: center; min-height: 16px; }
+    .auth-link { background: none; border: none; color: var(--accent-hi); font-size: 13px; cursor: pointer; padding: 0; text-decoration: underline; }
 
     /* ── Overlay ───────────────────────────────────────────────────────────── */
     .overlay {
@@ -623,21 +624,62 @@
     <div class="auth-card">
       <div class="auth-logo">✦</div>
       <div class="auth-title">OptimizeMyPrompt AI</div>
-      <div class="auth-sub">Sign in to start optimizing your prompts</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tabLogin">Sign In</button>
-        <button class="auth-tab" id="tabRegister">Sign Up</button>
+
+      <!-- Login / Register view -->
+      <div id="authMain">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin">Sign In</button>
+          <button class="auth-tab" id="tabRegister">Sign Up</button>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" id="authEmailLbl">Email</label>
+          <input class="auth-input" type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" id="authPasswordLbl">Password</label>
+          <input class="auth-input" type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="auth-btn" id="authSubmit">Sign In</button>
+        <div class="auth-err" id="authErr"></div>
+        <div style="text-align:center;margin-top:10px">
+          <button class="auth-link" id="authForgotLink">Forgot password?</button>
+        </div>
       </div>
-      <div class="auth-field">
-        <label class="auth-label">Email</label>
-        <input class="auth-input" type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
+
+      <!-- Forgot password view -->
+      <div id="authForgotView" class="hidden">
+        <div class="auth-sub" id="authForgotSubText">Enter your email to receive a reset link</div>
+        <div class="auth-field">
+          <label class="auth-label" id="authForgotEmailLbl">Email</label>
+          <input class="auth-input" type="email" id="authForgotEmail" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <button class="auth-btn" id="authForgotBtn">Send reset link</button>
+        <div class="auth-err" id="authForgotErr"></div>
+        <div style="text-align:center;margin-top:10px">
+          <button class="auth-link" id="authBackFromForgot">Back to sign in</button>
+        </div>
       </div>
-      <div class="auth-field">
-        <label class="auth-label">Password</label>
-        <input class="auth-input" type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+
+      <!-- Pending email verification view -->
+      <div id="authPendingView" class="hidden">
+        <div class="auth-sub" id="authPendingSubText" style="margin-bottom:16px"></div>
+        <button class="auth-btn" id="authResendBtn">Resend verification email</button>
+        <div class="auth-err" id="authResendMsg" style="color:var(--accent-hi)"></div>
+        <div style="text-align:center;margin-top:10px">
+          <button class="auth-link" id="authBackFromPending">Back to sign in</button>
+        </div>
       </div>
-      <button class="auth-btn" id="authSubmit">Sign In</button>
-      <div class="auth-err" id="authErr"></div>
+
+      <!-- Reset password view (opened via ?reset_token= URL param) -->
+      <div id="authResetView" class="hidden">
+        <div class="auth-sub" id="authResetSubText" style="margin-bottom:16px">Choose a new password</div>
+        <div class="auth-field">
+          <label class="auth-label" id="authNewPwLbl">New password</label>
+          <input class="auth-input" type="password" id="authNewPassword" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button class="auth-btn" id="authResetBtn">Set new password</button>
+        <div class="auth-err" id="authResetErr"></div>
+      </div>
     </div>
   </div>
 
@@ -771,6 +813,17 @@
         feedbackQ:'Was this helpful?', feedbackDone: r => `✓ Thanks! You rated this ${r}/5`,
         intentNL:'Natural Language', intentCode:'Code', codeReview:'Code Review',
         qLength:'Length', qSpec:'Specificity', qStruct:'Structure', qClarity:'Clarity',
+        authSignIn:'Sign In', authSignUp:'Sign Up', authCreateAccount:'Create Account',
+        authEmailLbl:'Email', authPasswordLbl:'Password',
+        authForgot:'Forgot password?', authForgotTitle:'Reset password',
+        authForgotSub:'Enter your email to receive a reset link',
+        authForgotBtn:'Send reset link', authForgotSent:'Check your inbox — a link is on its way',
+        authBackLogin:'Back to sign in', authPendingTitle:'Verify your email',
+        authResend:'Resend verification email', authResendDone:'Email resent!',
+        authNewPwLbl:'New password', authResetBtn:'Set new password',
+        authResetDone:'Password updated! Sign in below.',
+        authVerifiedToast:'Email verified! You can now sign in.',
+        authUnverifiedMsg:'Please verify your email before signing in.',
       },
       fr: {
         newConvo:'Nouvelle conversation', recent:'Récent', noConvos:'Aucune conversation',
@@ -790,6 +843,17 @@
         feedbackQ:'Était-ce utile ?', feedbackDone: r => `✓ Merci ! Vous avez noté ${r}/5`,
         intentNL:'Langage naturel', intentCode:'Code', codeReview:'Revue de code',
         qLength:'Longueur', qSpec:'Spécificité', qStruct:'Structure', qClarity:'Clarté',
+        authSignIn:'Se connecter', authSignUp:"S'inscrire", authCreateAccount:'Créer un compte',
+        authEmailLbl:'E-mail', authPasswordLbl:'Mot de passe',
+        authForgot:'Mot de passe oublié ?', authForgotTitle:'Réinitialiser le mot de passe',
+        authForgotSub:'Entrez votre e-mail pour recevoir un lien de réinitialisation',
+        authForgotBtn:'Envoyer le lien', authForgotSent:'Vérifiez votre boîte — le lien est en route',
+        authBackLogin:'Retour à la connexion', authPendingTitle:'Vérifiez votre e-mail',
+        authResend:"Renvoyer l'e-mail de vérification", authResendDone:'E-mail renvoyé !',
+        authNewPwLbl:'Nouveau mot de passe', authResetBtn:'Définir un nouveau mot de passe',
+        authResetDone:'Mot de passe mis à jour ! Connectez-vous.',
+        authVerifiedToast:'E-mail vérifié ! Vous pouvez vous connecter.',
+        authUnverifiedMsg:'Vérifiez votre e-mail avant de vous connecter.',
       },
       es: {
         newConvo:'Nueva conversación', recent:'Reciente', noConvos:'Sin conversaciones',
@@ -809,6 +873,17 @@
         feedbackQ:'¿Fue útil?', feedbackDone: r => `✓ ¡Gracias! Calificaste esto ${r}/5`,
         intentNL:'Lenguaje natural', intentCode:'Código', codeReview:'Revisión de código',
         qLength:'Longitud', qSpec:'Especificidad', qStruct:'Estructura', qClarity:'Claridad',
+        authSignIn:'Iniciar sesión', authSignUp:'Registrarse', authCreateAccount:'Crear cuenta',
+        authEmailLbl:'Correo electrónico', authPasswordLbl:'Contraseña',
+        authForgot:'¿Olvidaste tu contraseña?', authForgotTitle:'Restablecer contraseña',
+        authForgotSub:'Ingresa tu correo para recibir un enlace de restablecimiento',
+        authForgotBtn:'Enviar enlace', authForgotSent:'Revisa tu bandeja — el enlace está en camino',
+        authBackLogin:'Volver al inicio de sesión', authPendingTitle:'Verifica tu correo',
+        authResend:'Reenviar correo de verificación', authResendDone:'¡Correo reenviado!',
+        authNewPwLbl:'Nueva contraseña', authResetBtn:'Establecer nueva contraseña',
+        authResetDone:'¡Contraseña actualizada! Inicia sesión.',
+        authVerifiedToast:'¡Correo verificado! Ahora puedes iniciar sesión.',
+        authUnverifiedMsg:'Por favor, verifica tu correo antes de iniciar sesión.',
       },
       it: {
         newConvo:'Nuova conversazione', recent:'Recente', noConvos:'Nessuna conversazione',
@@ -828,6 +903,17 @@
         feedbackQ:'È stato utile?', feedbackDone: r => `✓ Grazie! Hai valutato questo ${r}/5`,
         intentNL:'Linguaggio naturale', intentCode:'Codice', codeReview:'Revisione codice',
         qLength:'Lunghezza', qSpec:'Specificità', qStruct:'Struttura', qClarity:'Chiarezza',
+        authSignIn:'Accedi', authSignUp:'Registrati', authCreateAccount:'Crea account',
+        authEmailLbl:'Email', authPasswordLbl:'Password',
+        authForgot:'Password dimenticata?', authForgotTitle:'Reimposta password',
+        authForgotSub:'Inserisci la tua email per ricevere un link di reimpostazione',
+        authForgotBtn:'Invia link', authForgotSent:'Controlla la posta — il link è in arrivo',
+        authBackLogin:'Torna al login', authPendingTitle:'Verifica la tua email',
+        authResend:'Reinvia email di verifica', authResendDone:'Email reinviata!',
+        authNewPwLbl:'Nuova password', authResetBtn:'Imposta nuova password',
+        authResetDone:'Password aggiornata! Accedi.',
+        authVerifiedToast:'Email verificata! Ora puoi accedere.',
+        authUnverifiedMsg:'Verifica la tua email prima di accedere.',
       },
       pt: {
         newConvo:'Nova conversa', recent:'Recente', noConvos:'Nenhuma conversa',
@@ -847,6 +933,17 @@
         feedbackQ:'Foi útil?', feedbackDone: r => `✓ Obrigado! Você avaliou com ${r}/5`,
         intentNL:'Linguagem natural', intentCode:'Código', codeReview:'Revisão de código',
         qLength:'Comprimento', qSpec:'Especificidade', qStruct:'Estrutura', qClarity:'Clareza',
+        authSignIn:'Entrar', authSignUp:'Cadastrar', authCreateAccount:'Criar conta',
+        authEmailLbl:'E-mail', authPasswordLbl:'Senha',
+        authForgot:'Esqueceu a senha?', authForgotTitle:'Redefinir senha',
+        authForgotSub:'Digite seu e-mail para receber um link de redefinição',
+        authForgotBtn:'Enviar link', authForgotSent:'Verifique sua caixa — o link está a caminho',
+        authBackLogin:'Voltar ao login', authPendingTitle:'Verifique seu e-mail',
+        authResend:'Reenviar e-mail de verificação', authResendDone:'E-mail reenviado!',
+        authNewPwLbl:'Nova senha', authResetBtn:'Definir nova senha',
+        authResetDone:'Senha atualizada! Faça login.',
+        authVerifiedToast:'E-mail verificado! Você pode entrar agora.',
+        authUnverifiedMsg:'Verifique seu e-mail antes de entrar.',
       },
       de: {
         newConvo:'Neues Gespräch', recent:'Zuletzt', noConvos:'Noch keine Gespräche',
@@ -866,6 +963,17 @@
         feedbackQ:'War das hilfreich?', feedbackDone: r => `✓ Danke! Bewertung: ${r}/5`,
         intentNL:'Natürliche Sprache', intentCode:'Code', codeReview:'Code-Überprüfung',
         qLength:'Länge', qSpec:'Spezifität', qStruct:'Struktur', qClarity:'Klarheit',
+        authSignIn:'Anmelden', authSignUp:'Registrieren', authCreateAccount:'Konto erstellen',
+        authEmailLbl:'E-Mail', authPasswordLbl:'Passwort',
+        authForgot:'Passwort vergessen?', authForgotTitle:'Passwort zurücksetzen',
+        authForgotSub:'E-Mail eingeben, um einen Reset-Link zu erhalten',
+        authForgotBtn:'Link senden', authForgotSent:'Posteingang prüfen — der Link ist unterwegs',
+        authBackLogin:'Zurück zur Anmeldung', authPendingTitle:'E-Mail bestätigen',
+        authResend:'Bestätigungs-E-Mail erneut senden', authResendDone:'E-Mail erneut gesendet!',
+        authNewPwLbl:'Neues Passwort', authResetBtn:'Neues Passwort festlegen',
+        authResetDone:'Passwort aktualisiert! Jetzt anmelden.',
+        authVerifiedToast:'E-Mail bestätigt! Jetzt anmelden.',
+        authUnverifiedMsg:'Bitte E-Mail vor der Anmeldung bestätigen.',
       },
       ar: {
         newConvo:'محادثة جديدة', recent:'الأخيرة', noConvos:'لا توجد محادثات بعد',
@@ -885,6 +993,17 @@
         feedbackQ:'هل كان مفيداً؟', feedbackDone: r => `✓ شكراً! قيّمت هذا بـ ${r}/5`,
         intentNL:'لغة طبيعية', intentCode:'كود', codeReview:'مراجعة الكود',
         qLength:'الطول', qSpec:'التحديد', qStruct:'البنية', qClarity:'الوضوح',
+        authSignIn:'تسجيل الدخول', authSignUp:'إنشاء حساب', authCreateAccount:'إنشاء حساب',
+        authEmailLbl:'البريد الإلكتروني', authPasswordLbl:'كلمة المرور',
+        authForgot:'نسيت كلمة المرور؟', authForgotTitle:'إعادة تعيين كلمة المرور',
+        authForgotSub:'أدخل بريدك الإلكتروني لتلقي رابط إعادة التعيين',
+        authForgotBtn:'إرسال الرابط', authForgotSent:'تحقق من بريدك الوارد — الرابط في الطريق',
+        authBackLogin:'العودة إلى تسجيل الدخول', authPendingTitle:'تحقق من بريدك الإلكتروني',
+        authResend:'إعادة إرسال بريد التحقق', authResendDone:'تمت إعادة الإرسال!',
+        authNewPwLbl:'كلمة مرور جديدة', authResetBtn:'تعيين كلمة مرور جديدة',
+        authResetDone:'تم تحديث كلمة المرور! سجّل الدخول.',
+        authVerifiedToast:'تم التحقق! يمكنك الآن تسجيل الدخول.',
+        authUnverifiedMsg:'يرجى التحقق من بريدك الإلكتروني قبل تسجيل الدخول.',
       },
       zh: {
         newConvo:'新对话', recent:'最近', noConvos:'暂无对话',
@@ -904,6 +1023,17 @@
         feedbackQ:'这对您有帮助吗？', feedbackDone: r => `✓ 感谢！您的评分是 ${r}/5`,
         intentNL:'自然语言', intentCode:'代码', codeReview:'代码审查',
         qLength:'长度', qSpec:'具体性', qStruct:'结构', qClarity:'清晰度',
+        authSignIn:'登录', authSignUp:'注册', authCreateAccount:'创建账户',
+        authEmailLbl:'邮箱', authPasswordLbl:'密码',
+        authForgot:'忘记密码？', authForgotTitle:'重置密码',
+        authForgotSub:'输入邮箱以接收重置链接',
+        authForgotBtn:'发送链接', authForgotSent:'请查看收件箱 — 链接已发送',
+        authBackLogin:'返回登录', authPendingTitle:'请验证您的邮箱',
+        authResend:'重新发送验证邮件', authResendDone:'邮件已重新发送！',
+        authNewPwLbl:'新密码', authResetBtn:'设置新密码',
+        authResetDone:'密码已更新！请重新登录。',
+        authVerifiedToast:'邮箱已验证！您现在可以登录。',
+        authUnverifiedMsg:'请先验证您的邮箱再登录。',
       },
       ja: {
         newConvo:'新しい会話', recent:'最近', noConvos:'まだ会話がありません',
@@ -923,6 +1053,17 @@
         feedbackQ:'役に立ちましたか？', feedbackDone: r => `✓ ありがとうございます！評価：${r}/5`,
         intentNL:'自然言語', intentCode:'コード', codeReview:'コードレビュー',
         qLength:'長さ', qSpec:'具体性', qStruct:'構造', qClarity:'明確さ',
+        authSignIn:'ログイン', authSignUp:'新規登録', authCreateAccount:'アカウント作成',
+        authEmailLbl:'メールアドレス', authPasswordLbl:'パスワード',
+        authForgot:'パスワードを忘れた？', authForgotTitle:'パスワードのリセット',
+        authForgotSub:'メールアドレスを入力してリセットリンクを受け取る',
+        authForgotBtn:'リセットリンクを送信', authForgotSent:'受信トレイを確認 — リンクを送信しました',
+        authBackLogin:'ログインに戻る', authPendingTitle:'メールを確認してください',
+        authResend:'確認メールを再送信', authResendDone:'メールを再送信しました！',
+        authNewPwLbl:'新しいパスワード', authResetBtn:'新しいパスワードを設定',
+        authResetDone:'パスワードが更新されました！ログインしてください。',
+        authVerifiedToast:'メールが確認されました！ログインできます。',
+        authUnverifiedMsg:'ログイン前にメールを確認してください。',
       },
     };
 
@@ -1063,25 +1204,57 @@
       // auth — verify stored token or show login modal
       (async function initAuth() {
         let mode = 'login';
+        let pendingUserId = null;
+
+        // ── view helpers ────────────────────────────────────────────────────
+        function showView(id) {
+          ['authMain','authForgotView','authPendingView','authResetView'].forEach(v =>
+            document.getElementById(v).classList.toggle('hidden', v !== id)
+          );
+        }
+
+        function applyAuthI18n() {
+          document.getElementById('tabLogin').textContent        = t('authSignIn');
+          document.getElementById('tabRegister').textContent     = t('authSignUp');
+          document.getElementById('authSubmit').textContent      = mode === 'login' ? t('authSignIn') : t('authCreateAccount');
+          document.getElementById('authEmailLbl').textContent    = t('authEmailLbl');
+          document.getElementById('authPasswordLbl').textContent = t('authPasswordLbl');
+          document.getElementById('authForgotLink').textContent  = t('authForgot');
+          document.getElementById('authForgotSubText').textContent = t('authForgotSub');
+          document.getElementById('authForgotEmailLbl').textContent = t('authEmailLbl');
+          document.getElementById('authForgotBtn').textContent   = t('authForgotBtn');
+          document.getElementById('authBackFromForgot').textContent = t('authBackLogin');
+          document.getElementById('authResendBtn').textContent   = t('authResend');
+          document.getElementById('authBackFromPending').textContent = t('authBackLogin');
+          document.getElementById('authNewPwLbl').textContent    = t('authNewPwLbl');
+          document.getElementById('authResetBtn').textContent    = t('authResetBtn');
+        }
+
+        // call applyAuthI18n whenever language changes (hook into applyI18n)
+        const _origApplyI18n = applyI18n;
+        applyI18n = function() { _origApplyI18n(); applyAuthI18n(); };
+        applyAuthI18n();
 
         function setMode(m) {
           mode = m;
           document.getElementById('tabLogin').classList.toggle('active', m === 'login');
           document.getElementById('tabRegister').classList.toggle('active', m === 'register');
-          document.getElementById('authSubmit').textContent = m === 'login' ? 'Sign In' : 'Create Account';
+          document.getElementById('authSubmit').textContent = m === 'login' ? t('authSignIn') : t('authCreateAccount');
           document.getElementById('authPassword').autocomplete = m === 'login' ? 'current-password' : 'new-password';
           document.getElementById('authErr').textContent = '';
+          showView('authMain');
         }
 
         document.getElementById('tabLogin').addEventListener('click', () => setMode('login'));
         document.getElementById('tabRegister').addEventListener('click', () => setMode('register'));
 
+        // ── login / register ────────────────────────────────────────────────
         document.getElementById('authSubmit').addEventListener('click', async () => {
           const email    = document.getElementById('authEmail').value.trim();
           const password = document.getElementById('authPassword').value;
           const btn = document.getElementById('authSubmit');
           const err = document.getElementById('authErr');
-          if (!email || !password) { err.textContent = 'Email and password are required'; return; }
+          if (!email || !password) { err.textContent = t('authEmailLbl') + ' & ' + t('authPasswordLbl').toLowerCase() + ' required'; return; }
           btn.disabled = true; btn.textContent = '…'; err.textContent = '';
           try {
             const res = await fetch(mode === 'login' ? '/api/auth/login' : '/api/auth/register', {
@@ -1090,7 +1263,26 @@
               body: JSON.stringify({ email, password }),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Authentication failed');
+
+            if (mode === 'register' && res.ok && data.pendingVerification) {
+              pendingUserId = null; // userId not yet known; resend needs email
+              document.getElementById('authPendingSubText').textContent =
+                (t('authPendingTitle') + ' — ' + data.email);
+              showView('authPendingView');
+              return;
+            }
+
+            if (!res.ok) {
+              if (data.code === 'EMAIL_NOT_VERIFIED') {
+                pendingUserId = data.userId;
+                document.getElementById('authPendingSubText').textContent =
+                  t('authUnverifiedMsg');
+                showView('authPendingView');
+                return;
+              }
+              throw new Error(data.error || 'Authentication failed');
+            }
+
             S.token = data.token; S.user = data.user;
             localStorage.setItem('pc_token', S.token);
             showApp();
@@ -1098,7 +1290,7 @@
             err.textContent = e.message;
           } finally {
             btn.disabled = false;
-            btn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+            btn.textContent = mode === 'login' ? t('authSignIn') : t('authCreateAccount');
           }
         });
 
@@ -1108,6 +1300,106 @@
           })
         );
 
+        // ── forgot password ─────────────────────────────────────────────────
+        document.getElementById('authForgotLink').addEventListener('click', () => {
+          document.getElementById('authForgotEmail').value = document.getElementById('authEmail').value;
+          document.getElementById('authForgotErr').textContent = '';
+          showView('authForgotView');
+        });
+
+        document.getElementById('authForgotBtn').addEventListener('click', async () => {
+          const email = document.getElementById('authForgotEmail').value.trim();
+          const btn   = document.getElementById('authForgotBtn');
+          const err   = document.getElementById('authForgotErr');
+          if (!email) { err.textContent = t('authEmailLbl') + ' required'; return; }
+          btn.disabled = true; btn.textContent = '…'; err.textContent = '';
+          await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          err.style.color = 'var(--accent-hi)';
+          err.textContent = t('authForgotSent');
+          btn.disabled = false;
+          btn.textContent = t('authForgotBtn');
+        });
+
+        document.getElementById('authBackFromForgot').addEventListener('click', () => setMode('login'));
+
+        // ── resend verification ─────────────────────────────────────────────
+        document.getElementById('authResendBtn').addEventListener('click', async () => {
+          const btn = document.getElementById('authResendBtn');
+          const msg = document.getElementById('authResendMsg');
+          btn.disabled = true; btn.textContent = '…';
+          await fetch('/api/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: pendingUserId }),
+          });
+          msg.textContent = t('authResendDone');
+          btn.disabled = false;
+          btn.textContent = t('authResend');
+        });
+
+        document.getElementById('authBackFromPending').addEventListener('click', () => setMode('login'));
+
+        // ── reset password (from email link ?reset_token=xxx) ───────────────
+        const urlParams = new URLSearchParams(window.location.search);
+        const resetToken = urlParams.get('reset_token');
+        const verifiedFlag = urlParams.get('verified');
+
+        if (resetToken) {
+          document.getElementById('authResetSubText').textContent = t('authResetBtn');
+          showView('authResetView');
+        }
+
+        document.getElementById('authResetBtn').addEventListener('click', async () => {
+          const password = document.getElementById('authNewPassword').value;
+          const btn = document.getElementById('authResetBtn');
+          const err = document.getElementById('authResetErr');
+          if (password.length < 8) { err.textContent = 'Min. 8 characters'; return; }
+          btn.disabled = true; btn.textContent = '…'; err.textContent = '';
+          try {
+            const res = await fetch('/api/auth/reset-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: resetToken, password }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            err.style.color = 'var(--accent-hi)';
+            err.textContent = t('authResetDone');
+            // Clean URL and return to login after a moment
+            history.replaceState({}, '', '/');
+            setTimeout(() => setMode('login'), 2000);
+          } catch (e) {
+            err.textContent = e.message;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = t('authResetBtn');
+          }
+        });
+
+        // ── email verified toast ────────────────────────────────────────────
+        if (verifiedFlag === '1') {
+          history.replaceState({}, '', '/');
+          // Show a toast after showAuth() runs; queue it
+          setTimeout(() => {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent-hi);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3)';
+            toast.textContent = t('authVerifiedToast');
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+          }, 300);
+        } else if (verifiedFlag === 'error') {
+          const msg = urlParams.get('msg') || 'Verification failed';
+          history.replaceState({}, '', '/');
+          setTimeout(() => {
+            document.getElementById('authErr').textContent = msg;
+          }, 300);
+        }
+
+        // ── logout ──────────────────────────────────────────────────────────
         document.getElementById('logoutBtn').addEventListener('click', () => {
           handleUnauth();
           S.activeId = null;
@@ -1118,7 +1410,7 @@
           setMode('login');
         });
 
-        // verify stored token
+        // ── verify stored token ─────────────────────────────────────────────
         if (S.token) {
           try {
             const res = await fetch('/api/auth/me', { headers: authHeaders() });

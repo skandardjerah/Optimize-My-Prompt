@@ -13,6 +13,7 @@ import { StreamHandler } from '../server/services/StreamHandler.js';
 import { validateClassifyRequest } from '../server/middleware/requestValidator.js';
 import { errorHandler } from '../server/middleware/errorHandler.js';
 import { FeedbackAnalyzer } from '../server/services/FeedbackAnalyzer.js';
+import { EmailService } from '../server/services/EmailService.js';
 import { getLanguage } from '../i18n/languages.js';
 
 dotenv.config();
@@ -83,8 +84,12 @@ app.post('/api/auth/register', async (req, res) => {
     return res.status(400).json({ error: 'Password must be at least 8 characters' });
   try {
     const user = await UserStore.create(email, password);
-    const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user });
+    const verifyToken = UserStore.createToken(user.id, 'verify');
+    // Fire-and-forget — don't fail registration if email send fails
+    EmailService.sendVerification(user.email, verifyToken).catch(err =>
+      console.error('Verification email failed:', err.message)
+    );
+    res.json({ pendingVerification: true, email: user.email });
   } catch (err) {
     res.status(409).json({ error: err.message });
   }
@@ -99,12 +104,70 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user });
   } catch (err) {
+    if (err.code === 'EMAIL_NOT_VERIFIED') {
+      return res.status(403).json({ error: err.message, code: 'EMAIL_NOT_VERIFIED', userId: err.userId });
+    }
     res.status(401).json({ error: err.message });
   }
 });
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
+});
+
+// Email verification — linked from the email
+app.get('/api/auth/verify-email', (req, res) => {
+  try {
+    const userId = UserStore.consumeToken(req.query.token, 'verify');
+    UserStore.markVerified(userId);
+    // Redirect to app with a success flag so the frontend can show a toast
+    res.redirect('/?verified=1');
+  } catch (err) {
+    res.redirect('/?verified=error&msg=' + encodeURIComponent(err.message));
+  }
+});
+
+// Resend verification email
+app.post('/api/auth/resend-verification', async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+  const user = UserStore.getById(userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.emailVerified) return res.json({ alreadyVerified: true });
+  const token = UserStore.createToken(userId, 'verify');
+  EmailService.sendVerification(user.email, token).catch(err =>
+    console.error('Resend verification email failed:', err.message)
+  );
+  res.json({ sent: true });
+});
+
+// Forgot password — send reset email
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+  // Always respond success to avoid user enumeration
+  const user = UserStore.getByEmail(email);
+  if (user) {
+    const token = UserStore.createToken(user.id, 'reset');
+    EmailService.sendPasswordReset(user.email, token).catch(err =>
+      console.error('Password reset email failed:', err.message)
+    );
+  }
+  res.json({ sent: true });
+});
+
+// Reset password — consume token, update password
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'token and password are required' });
+  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  try {
+    const userId = UserStore.consumeToken(token, 'reset');
+    await UserStore.resetPassword(userId, password);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 app.post('/api/process', requireAuth, async (req, res) => {
